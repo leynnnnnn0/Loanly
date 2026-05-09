@@ -34,7 +34,11 @@ function LoanCard({ loan }: any) {
                                     ? 'bg-green-100 text-green-700'
                                     : loan.status === 'pending'
                                       ? 'bg-yellow-100 text-yellow-700'
-                                      : 'bg-gray-100 text-gray-500'
+                                      : loan.status === 'rejected'
+                                        ? 'bg-red-100 text-red-500'
+                                        : loan.status === 'voided'
+                                          ? 'bg-orange-100 text-orange-500'
+                                          : 'bg-gray-100 text-gray-500'
                             }`}
                         >
                             {loan.status}
@@ -103,7 +107,7 @@ export default function Index() {
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');
 
-    const filters = ['all', 'active', 'pending', 'completed'];
+    const filters = ['all', 'active', 'pending', 'completed', 'rejected', 'voided'];
 
     const filtered = (loans as any[]).filter((l) => {
         const matchesSearch = l.contract_number

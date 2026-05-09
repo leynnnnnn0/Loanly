@@ -29,6 +29,7 @@ return new class extends Migration
             $table->text('void_reason')->nullable();
             $table->string('status')->default('pending');
             $table->double('max_amount_to_borrow')->default(20000);
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }

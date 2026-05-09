@@ -23,7 +23,7 @@ interface ScheduleRow {
 const fmt = (v: number) =>
     new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'USD',
+        currency: 'PHP',
     }).format(v);
 
 function addPeriod(date: Date, n: number, unit: 'weeks' | 'months'): Date {
@@ -184,7 +184,7 @@ export default function Create() {
                                     </p>
                                 )}
                                 <p className="mt-1 text-xs text-black/40">
-                                    Min: $1,000 &nbsp;·&nbsp; Available:{' '}
+                                    Min: 1,000 &nbsp;·&nbsp; Available:{' '}
                                     {fmt(availableToBorrow)}
                                 </p>
                             </div>

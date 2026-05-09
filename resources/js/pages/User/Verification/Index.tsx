@@ -131,6 +131,7 @@ export default function Index() {
                                 onBack={back}
                                 onSubmit={handleSubmit}
                                 isSubmitting={processing}
+                                onGoToStep={setStep}
                             />
                         )}
                     </div>

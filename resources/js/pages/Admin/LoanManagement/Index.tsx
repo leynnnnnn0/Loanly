@@ -80,6 +80,10 @@ const statusConfig: Record<string, { label: string; class: string }> = {
     },
     voided: {
         label: 'Voided',
+        class: 'bg-orange-50 text-orange-700 border-orange-200',
+    },
+    rejected: {
+        label: 'Rejected',
         class: 'bg-red-50 text-red-700 border-red-200',
     },
 };

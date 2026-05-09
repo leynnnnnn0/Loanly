@@ -1010,6 +1010,22 @@ export default function AdminLoanShow({ loan }: { loan: Loan }) {
                 <></>
             )}
 
+            {loan.status == 'rejected' ? (
+                <Alert variant="destructive" className="mb-6">
+                    <XCircle className="size-4" />
+                    <AlertDescription>
+                        This loan was rejected
+                        {loan.remarks && (
+                            <span className="ml-1">
+                                Reason: {loan.remarks}
+                            </span>
+                        )}
+                    </AlertDescription>
+                </Alert>
+            ) : (
+                <></>
+            )}
+
             {/* Stat cards */}
             <div className="mb-6 grid grid-cols-4 gap-4">
                 {[
@@ -1306,9 +1322,7 @@ export default function AdminLoanShow({ loan }: { loan: Loan }) {
                                         {/* Attachment thumbnails in the pending card */}
                                         {h.attachments?.length > 0 && (
                                             <AttachmentGrid
-                                                attachments={
-                                                    h.attachments
-                                                }
+                                                attachments={h.attachments}
                                             />
                                         )}
 
@@ -1425,9 +1439,7 @@ export default function AdminLoanShow({ loan }: { loan: Loan }) {
                                         {/* Attachments in history card */}
                                         {h.attachments?.length > 0 && (
                                             <AttachmentGrid
-                                                attachments={
-                                                    h.attachments
-                                                }
+                                                attachments={h.attachments}
                                             />
                                         )}
                                     </div>

@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Loan;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -15,39 +14,44 @@ class LoanApprovedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
+    protected ?string $pdfContent = null;
+
     public function __construct(public Loan $loan)
     {
         //
     }
 
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
+    public function withPdfContent(string $content): static
     {
-        return new Envelope(subject: 'Your Loan Has Been Approved');
+        $this->pdfContent = $content;
+        return $this;
     }
 
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
+    public function envelope(): Envelope
     {
-        return new Content(
-            markdown: 'emails.loan.approved',
+        return new Envelope(
+            subject: "Loan Approved – {$this->loan->contract_number}",
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, Attachment>
-     */
+    public function content(): Content
+    {
+        return new Content(
+            view: 'emails.loan-approved',
+        );
+    }
+
     public function attachments(): array
     {
-        return [];
+        if (!$this->pdfContent) {
+            return [];
+        }
+
+        return [
+            Attachment::fromData(
+                fn() => base64_decode($this->pdfContent), 
+                "Promissory-Note-{$this->loan->contract_number}.pdf"
+            )->withMime('application/pdf'),
+        ];
     }
 }

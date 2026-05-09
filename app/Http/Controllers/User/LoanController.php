@@ -31,7 +31,6 @@ class LoanController extends Controller
 
         if ($borrower) {
             $loanModels = $borrower->loans()
-                ->where('is_voided', false)
                 ->with('payment_schedules.payment_histories')
                 ->latest()
                 ->get();

@@ -14,8 +14,9 @@ function ReviewSection({
     title,
     color = 'bg-[#f5f5f5]',
     iconColor = 'text-black/40',
+    onEdit,
     children,
-} : any) {
+}: any) {
     return (
         <div className="overflow-hidden rounded-2xl border border-[#ebebeb]">
             <div className="flex items-center gap-3 bg-[#fafafa] px-5 py-4">
@@ -24,13 +25,20 @@ function ReviewSection({
                 >
                     <Icon className={`size-4 ${iconColor}`} />
                 </div>
-                <h3 className="text-sm font-semibold">{title}</h3>
+                <h3 className="flex-1 text-sm font-semibold">{title}</h3>
+                {onEdit && (
+                    <button
+                        onClick={onEdit}
+                        className="text-xs font-semibold text-primary hover:underline"
+                    >
+                        Edit
+                    </button>
+                )}
             </div>
             <div className="space-y-2.5 px-5 py-4">{children}</div>
         </div>
     );
 }
-
 function ReviewRow({ label, value }) {
     return (
         <div className="flex items-start justify-between gap-6">
@@ -49,6 +57,7 @@ export default function ConfirmationStep({
     onBack,
     onSubmit,
     isSubmitting,
+    onGoToStep,
 }) {
     return (
         <div className="space-y-8">
@@ -72,6 +81,7 @@ export default function ConfirmationStep({
                     title="About You"
                     color="bg-primary"
                     iconColor="text-white"
+                    onEdit={() => onGoToStep(1)}
                 >
                     <ReviewRow
                         label="Date of Birth"
@@ -100,6 +110,7 @@ export default function ConfirmationStep({
                     title="Identity"
                     color="bg-primary"
                     iconColor="text-white"
+                    onEdit={() => onGoToStep(2)}
                 >
                     <ReviewRow label="ID Type" value={identity.id_type} />
                     <Separator className="my-1" />
@@ -134,6 +145,7 @@ export default function ConfirmationStep({
                     title={`References (${references.length})`}
                     color="bg-primary"
                     iconColor="text-white"
+                    onEdit={() => onGoToStep(3)}
                 >
                     {references.map((ref, i) => (
                         <div key={i}>

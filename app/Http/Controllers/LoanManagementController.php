@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Mail\LoanApprovedMail;
 use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LoanManagementController extends Controller
 {
@@ -32,7 +33,7 @@ class LoanManagementController extends Controller
                     )
             )
             ->latest()
-            ->paginate(20)
+            ->paginate(8)
             ->through(function ($loan) {
                 $totalPayable  = $loan->payment_schedules->sum(fn($s) =>
                 (float)$s->amount_due + (float)($s->penalty_amount ?? 0) - (float)($s->rebate_amount ?? 0));
@@ -79,20 +80,47 @@ class LoanManagementController extends Controller
 
         return Inertia::render('Admin/LoanManagement/Show', ['loan' => $loan]);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Add these imports at the top of LoanManagementController.php
+    // (alongside your existing use statements)
+    // ─────────────────────────────────────────────────────────────────────────────
+    // use Barryvdh\DomPDF\Facade\Pdf;   ← add this line
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Replace your existing approveLoan() method with this one.
+    // ─────────────────────────────────────────────────────────────────────────────
+
     public function approveLoan($id)
     {
-        $loan = Loan::with('borrower')->findOrFail($id);
+        $loan = Loan::with(['borrower', 'payment_schedules'])->findOrFail($id);
         abort_if($loan->status !== 'pending' || $loan->is_voided, 422, 'Cannot approve this loan.');
 
         $loan->update(['status' => 'active']);
 
-        if ($loan->borrower->user->email) {
-            Mail::to($loan->borrower->user->email)->send(new LoanApprovedMail($loan));
+        $borrower = $loan->borrower;
+
+        $lender = (object) [
+            'business_name' => config('app.lender_name', 'YOUR LENDING COMPANY'),
+        ];
+
+        $pdfContent = Pdf::loadView(
+            'promissory-note',
+            compact('loan', 'borrower', 'lender')
+        )->setPaper('a4', 'portrait')->output();
+
+        $email = $borrower->user->email ?? null;
+
+        if ($email) {
+            \Illuminate\Support\Facades\Mail::to($email)
+                ->queue(
+                    (new \App\Mail\LoanApprovedMail($loan))
+                        ->withPdfContent(base64_encode($pdfContent))  // encode here
+                );
         }
 
-        return back()->with('success', "Loan {$loan->contract_number} approved.");
+        return back()->with('success', "Loan {$loan->contract_number} approved and promissory note sent.");
     }
-
     public function rejectLoan(Request $request, $id)
     {
         $loan = Loan::findOrFail($id);
@@ -100,13 +128,9 @@ class LoanManagementController extends Controller
 
         $validated = $request->validate(['void_reason' => 'required|string|max:500']);
 
-
-
         DB::transaction(function () use ($loan, $validated) {
             $loan->update([
-                'status'      => 'voided',
-                'is_voided'   => true,
-                'voided_at'   => now(),
+                'status'      => 'rejected',
                 'remarks' => $validated['void_reason'],
             ]);
             $loan->payment_schedules()->where('status', 'pending')->update(['status' => 'cancelled']);

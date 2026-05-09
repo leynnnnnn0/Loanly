@@ -27,7 +27,8 @@ class Loan extends Model
         'voided_at',
         'void_reason',
         'status',
-        'max_amount_to_borrow'
+        'max_amount_to_borrow',
+        'remarks'
     ];
 
 

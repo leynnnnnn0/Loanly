@@ -89,7 +89,7 @@ interface Loan {
     id: number;
     contract_number: string;
     transaction_date: string;
-    status: 'pending' | 'active' | 'completed' | 'voided';
+    status: 'pending' | 'active' | 'completed' | 'voided' | 'rejected';
     is_voided: boolean;
     voided_at: string | null;
     void_reason: string | null;
@@ -850,7 +850,7 @@ export default function Show({ loan }: { loan: Loan }) {
     }
 
     function openPayment(s: PaymentSchedule) {
-        if (s.status === 'paid') return;
+        if (s.status === 'paid' || s.status == 'rejected') return;
         setSelected(s);
         setIsPaymentOpen(true);
     }
@@ -897,6 +897,20 @@ export default function Show({ loan }: { loan: Loan }) {
                             <span className="ml-1">
                                 Reason: {loan.void_reason}
                             </span>
+                        )}
+                    </AlertDescription>
+                </Alert>
+            ) : (
+                <></>
+            )}
+
+            {loan.status == 'rejected' ? (
+                <Alert variant="destructive" className="mb-6">
+                    <XCircle className="size-4" />
+                    <AlertDescription>
+                        This loan was rejected
+                        {loan.remarks && (
+                            <span className="ml-1">Reason: {loan.remarks}</span>
                         )}
                     </AlertDescription>
                 </Alert>
@@ -1120,7 +1134,7 @@ export default function Show({ loan }: { loan: Loan }) {
                                                         )}
                                                     </div>
                                                     {!isPaid &&
-                                                        !loan.is_voided && (
+                                                        !loan.is_voided && loan.status != 'rejected' && (
                                                             <Button
                                                                 size="sm"
                                                                 className="w-full rounded-full text-xs"
@@ -1253,7 +1267,7 @@ export default function Show({ loan }: { loan: Loan }) {
                                                 </TableCell>
                                                 <TableCell>
                                                     {!isPaid &&
-                                                        !loan.is_voided && (
+                                                        !loan.is_voided && loan.status != 'rejected' && (
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
@@ -1280,12 +1294,12 @@ export default function Show({ loan }: { loan: Loan }) {
                 {/* ── Right ── */}
                 <div className="space-y-5">
                     {/* Quick pay */}
-                    {loan.is_voided ? (
+                    {loan.is_voided || loan.status == 'rejected' ? (
                         <Card>
                             <CardContent className="flex flex-col items-center justify-center py-10 text-center">
                                 <XCircle className="mb-3 size-12 text-muted-foreground/30" />
                                 <p className="font-semibold text-muted-foreground">
-                                    Loan Voided
+                                    
                                 </p>
                                 <p className="text-xs text-muted-foreground">
                                     No payments available.
@@ -1356,98 +1370,96 @@ export default function Show({ loan }: { loan: Loan }) {
                     )}
 
                     {/* Payment History */}
-                      {/* Full payment history */}
-                                       <SectionCard icon={History} title="All Payment History">
-                                           <div className="max-h-[500px] space-y-2 overflow-y-auto">
-                                               {allHistories.length > 0 ? (
-                                                   allHistories.map((h, i) => (
-                                                       <div
-                                                           key={i}
-                                                           className="space-y-2 rounded-lg border border-border p-3"
-                                                       >
-                                                           <div className="flex items-start justify-between">
-                                                               <div>
-                                                                   <p className="text-sm font-semibold">
-                                                                       Payment #{h.schedule_number}
-                                                                   </p>
-                                                                   <p className="text-xs text-muted-foreground">
-                                                                       {fmtDate(h.payment_date)}
-                                                                   </p>
-                                                               </div>
-                                                               <div className="text-right">
-                                                                   <p
-                                                                       className={`text-sm font-bold ${h.status === 'approved' ? 'text-green-600' : h.status === 'rejected' ? 'text-red-500' : 'text-blue-600'}`}
-                                                                   >
-                                                                       {php(
-                                                                           parseFloat(
-                                                                               h.amount_paid,
-                                                                           ),
-                                                                       )}
-                                                                   </p>
-                                                                   <StatusBadge
-                                                                       status={h.status}
-                                                                   />
-                                                               </div>
-                                                           </div>
-                                                           <Separator />
-                                                           <div className="space-y-1 text-xs">
-                                                               <div className="flex justify-between">
-                                                                   <span className="text-muted-foreground">
-                                                                       Method
-                                                                   </span>
-                                                                   <span className="font-medium capitalize">
-                                                                       {h.payment_method}
-                                                                   </span>
-                                                               </div>
-                                                               {h.reference_number && (
-                                                                   <div className="flex justify-between">
-                                                                       <span className="text-muted-foreground">
-                                                                           Ref #
-                                                                       </span>
-                                                                       <span className="font-medium">
-                                                                           {h.reference_number}
-                                                                       </span>
-                                                                   </div>
-                                                               )}
-                                                               {h.receipt_number && (
-                                                                   <div className="flex justify-between">
-                                                                       <span className="text-muted-foreground">
-                                                                           Receipt #
-                                                                       </span>
-                                                                       <span className="font-medium">
-                                                                           {h.receipt_number}
-                                                                       </span>
-                                                                   </div>
-                                                               )}
-                                                               {h.remarks && (
-                                                                   <div className="flex justify-between">
-                                                                       <span className="text-muted-foreground">
-                                                                           Remarks
-                                                                       </span>
-                                                                       <span className="max-w-[60%] text-right font-medium">
-                                                                           {h.remarks}
-                                                                       </span>
-                                                                   </div>
-                                                               )}
-                                                           </div>
-                   
-                                                           {/* Attachments in history card */}
-                                                           {h.attachments?.length > 0 && (
-                                                               <AttachmentGrid
-                                                                   attachments={
-                                                                       h.attachments
-                                                                   }
-                                                               />
-                                                           )}
-                                                       </div>
-                                                   ))
-                                               ) : (
-                                                   <p className="py-8 text-center text-sm text-muted-foreground">
-                                                       No payment history yet
-                                                   </p>
-                                               )}
-                                           </div>
-                                       </SectionCard>
+                    {/* Full payment history */}
+                    <SectionCard icon={History} title="All Payment History">
+                        <div className="max-h-[500px] space-y-2 overflow-y-auto">
+                            {allHistories.length > 0 ? (
+                                allHistories.map((h, i) => (
+                                    <div
+                                        key={i}
+                                        className="space-y-2 rounded-lg border border-border p-3"
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <p className="text-sm font-semibold">
+                                                    Payment #{h.schedule_number}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {fmtDate(h.payment_date)}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p
+                                                    className={`text-sm font-bold ${h.status === 'approved' ? 'text-green-600' : h.status === 'rejected' ? 'text-red-500' : 'text-blue-600'}`}
+                                                >
+                                                    {php(
+                                                        parseFloat(
+                                                            h.amount_paid,
+                                                        ),
+                                                    )}
+                                                </p>
+                                                <StatusBadge
+                                                    status={h.status}
+                                                />
+                                            </div>
+                                        </div>
+                                        <Separator />
+                                        <div className="space-y-1 text-xs">
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">
+                                                    Method
+                                                </span>
+                                                <span className="font-medium capitalize">
+                                                    {h.payment_method}
+                                                </span>
+                                            </div>
+                                            {h.reference_number && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">
+                                                        Ref #
+                                                    </span>
+                                                    <span className="font-medium">
+                                                        {h.reference_number}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {h.receipt_number && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">
+                                                        Receipt #
+                                                    </span>
+                                                    <span className="font-medium">
+                                                        {h.receipt_number}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {h.remarks && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">
+                                                        Remarks
+                                                    </span>
+                                                    <span className="max-w-[60%] text-right font-medium">
+                                                        {h.remarks}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Attachments in history card */}
+                                        {h.attachments?.length > 0 && (
+                                            <AttachmentGrid
+                                                attachments={h.attachments}
+                                            />
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="py-8 text-center text-sm text-muted-foreground">
+                                    No payment history yet
+                                </p>
+                            )}
+                        </div>
+                    </SectionCard>
                 </div>
             </div>
 
