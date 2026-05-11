@@ -8,6 +8,7 @@ import VerificationSuccess from './components/VerificationSuccess';
 
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
+import { toast } from 'sonner';
 
 export default function Index() {
     const [step, setStep] = useState(1);
@@ -50,8 +51,11 @@ export default function Index() {
     const handleSubmit = () => {
         post('/user/profile', {
             forceFormData: true, 
-            onSuccess: () => setSubmitted(true),
+            onSuccess: () => {
+                toast.success("Submitted Successfully!")
+            },
             onError: (e) => {
+                toast.error("Something went wrong!")
                 console.log(e);
             }
         });

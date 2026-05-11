@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\BorrowerRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\Borrower;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -69,35 +71,42 @@ class ProfileController extends Controller
 
         $imagePath = $request->file('id_image')->store('borrower-ids', 'public');
 
-        $borrower = Borrower::create([
-            'user_id'        => Auth::id(),
-            'user_id'        => Auth::id(),
-            'first_name'     => $validated['first_name'], 
-            'last_name'      => $validated['last_name'],   
-            'phone_number'   => $validated['phone_number'], 
-            'address'        => $validated['address'],     
-            'date_of_birth'  => $validated['date_of_birth'],
-            'nationality'    => $validated['nationality'],
-            'account_status' => 'pending',
-        ]);
-
-        $borrower->identification()->create([
-            'id_type'     => $validated['id_type'],
-            'id_number'   => $validated['id_number'],
-            'issue_date'  => $validated['issue_date'],
-            'expiry_date' => $validated['expiry_date'],
-            'image_path'  => $imagePath,
-        ]);
-
-        foreach ($validated['references'] as $ref) {
-            $borrower->references()->create([
-                'first_name'   => $ref['first_name'],
-                'last_name'    => $ref['last_name'],
-                'phone_number' => $ref['phone_number'],
-                'address'      => $ref['address'],
-                'relationship' => $ref['relationship'],
+        DB::transaction(function() use ($validated, $imagePath){
+            $borrower = Borrower::create([
+                'user_id'        => Auth::id(),
+                'first_name'     => $validated['first_name'],
+                'last_name'      => $validated['last_name'],
+                'phone_number'   => $validated['phone_number'],
+                'address'        => $validated['address'],
+                'date_of_birth'  => $validated['date_of_birth'],
+                'nationality'    => $validated['nationality'],
+                'account_status' => 'pending',
             ]);
-        }
+
+            $borrower->identification()->create([
+                'id_type'     => $validated['id_type'],
+                'id_number'   => $validated['id_number'],
+                'issue_date'  => $validated['issue_date'],
+                'expiry_date' => $validated['expiry_date'],
+                'image_path'  => $imagePath,
+            ]);
+
+            foreach ($validated['references'] as $ref) {
+                $borrower->references()->create([
+                    'first_name'   => $ref['first_name'],
+                    'last_name'    => $ref['last_name'],
+                    'phone_number' => $ref['phone_number'],
+                    'address'      => $ref['address'],
+                    'relationship' => $ref['relationship'],
+                ]);
+            }
+
+            BorrowerRegistered::dispatch($borrower);
+        });
+
+        
+
+
 
         return redirect()->back()
             ->with('success', 'Verification submitted successfully.');

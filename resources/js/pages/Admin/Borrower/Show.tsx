@@ -42,6 +42,7 @@ import {
     IdCard,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import CreditScoreBadge from '@/components/CreditScoreBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Borrower {
@@ -534,6 +535,7 @@ export default function Show({ borrower }: Props) {
 
                     {/* ── Right sidebar ── */}
                     <div className="space-y-5">
+                        <CreditScoreBadge borrowerId={borrower.id} />
                         {/* Account summary */}
                         <Card className="border-0 shadow-sm">
                             <CardHeader className="pb-2">

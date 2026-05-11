@@ -113,9 +113,9 @@ class LoanManagementController extends Controller
 
         if ($email) {
             \Illuminate\Support\Facades\Mail::to($email)
-                ->queue(
+                ->queue( 
                     (new \App\Mail\LoanApprovedMail($loan))
-                        ->withPdfContent(base64_encode($pdfContent))  // encode here
+                        ->withPdfContent(base64_encode($pdfContent)) 
                 );
         }
 

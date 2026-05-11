@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CreditScoreService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -48,5 +49,26 @@ class Borrower extends Model
     public function loans()
     {
         return $this->hasMany(Loan::class);
+    }
+
+     // ─── Credit Score ─────────────────────────────────────────────────────────
+
+    /**
+     * Compute the borrower's credit score.
+     *
+     * Returns a structured array with:
+     *  - score      (int  300-1000)
+     *  - band       (string)
+     *  - breakdown  (per-factor scores and weights)
+     *  - meta       (raw payment stats)
+     *
+     * Usage:
+     *   $result = $borrower->getCreditScore();
+     *   echo $result['score'];  // e.g. 742
+     *   echo $result['band'];   // e.g. "Good"
+     */
+    public function getCreditScore(): array
+    {
+        return app(CreditScoreService::class)->compute($this);
     }
 }

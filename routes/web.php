@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\LoanManagementController;
 use App\Http\Controllers\BorrowerController;
+use App\Http\Controllers\DashboardController as ControllersDashboardController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\LoanController;
 use App\Http\Controllers\User\ProfileController;
@@ -9,7 +11,7 @@ use App\Http\Controllers\User\SettingsController;
 use App\Http\Controllers\User\VerificationController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
-
+use Illuminate\Support\Facades\Broadcast;
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
@@ -30,6 +32,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::put('/loans/schedules/{scheduleId}/penalty', [LoanManagementController::class, 'updatePenalty'])->name('admin.loans.penalty.update');
     Route::post('/loans/schedules/{scheduleId}/rebate',  [LoanManagementController::class, 'addRebate'])->name('admin.loans.rebate.add');
     Route::put('/loans/schedules/{scheduleId}/rebate',  [LoanManagementController::class, 'updateRebate'])->name('admin.loans.rebate.update');
+
+
 });
 
 Route::prefix('user')->group(function(){
@@ -47,7 +51,8 @@ Route::prefix('user')->group(function(){
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', [ControllersDashboardController::class, 'index']);
+    Route::get('/sales', [SalesController::class, 'index'])->name('admin.sales.index');
 });
 
 Route::get('/borrowers', [BorrowerController::class, 'index']);
@@ -70,7 +75,9 @@ Route::prefix('user')->middleware(['auth'])->group(function () {
     
 });
 
-Route::put('/admin/borrowers/{borrower}/verify', [BorrowerController::class, 'verify']);
+Route::get('/borrowers/{borrower}/credit-score', [BorrowerController::class, 'creditScore']);
 
+Route::put('/admin/borrowers/{borrower}/verify', [BorrowerController::class, 'verify']);
+Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 require __DIR__.'/settings.php';

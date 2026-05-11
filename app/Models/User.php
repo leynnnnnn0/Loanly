@@ -36,5 +36,8 @@ class User extends Authenticatable
         return $this->hasOne(Borrower::class);
     }
 
-    
+    public function routeNotificationForMail(): string
+    {
+        return $this->email; 
+    }
 }

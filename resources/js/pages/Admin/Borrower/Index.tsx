@@ -95,18 +95,16 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
-function StatCard({ label, value, icon: Icon, color }: any) {
+function StatCard({ label, value, icon: Icon, color, variant = 'blue' }: any) {
+      const bg = variant === 'green' ? 'bg-[#b4e4a1]' : 'bg-[#c3d9eb]';
     return (
-        <div className="border-0 shadow-sm rounded-lg">
-            <div className="flex flex-col  gap-4 p-5">
-                <div className="flex items-center justify-between w-full">
-                    <h4 className="font-bold text-sm">
-                        {label}
-                    </h4>
-                    <Icon className="size-5"/>
+        <div className={`${bg} rounded-2xl border-0 p-2 shadow-sm`}>
+            <div className="flex flex-col gap-4 p-5">
+                <div className="flex w-full items-center justify-between">
+                    <h4 className="text-sm font-bold">{label}</h4>
+                    <Icon className="size-5" />
                 </div>
                 <h1 className="text-2xl font-bold">{value}</h1>
-                
             </div>
         </div>
     );
@@ -157,6 +155,7 @@ export default function BorrowerIndex({ borrowers, filters, stats }: Props) {
                         value={stats.total}
                         icon={Users}
                         color="bg-slate-700"
+                        variant="green"
                     />
                     <StatCard
                         label="Pending"
@@ -169,6 +168,7 @@ export default function BorrowerIndex({ borrowers, filters, stats }: Props) {
                         value={stats.verified}
                         icon={UserCheck}
                         color="bg-green-600"
+                        variant="green"
                     />
                     <StatCard
                         label="Rejected"
@@ -301,7 +301,7 @@ export default function BorrowerIndex({ borrowers, filters, stats }: Props) {
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="gap-1 hover:und cursor-pointer"
+                                                        className="hover:und cursor-pointer gap-1"
                                                     >
                                                         <Eye className="size-3.5" />
                                                     </Button>

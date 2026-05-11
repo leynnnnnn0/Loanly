@@ -56,6 +56,7 @@ import {
     ZoomIn,
 } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { toast } from 'sonner';
 function storageUrl(path: string): string {
     return `/storage/${path}`;
 }
@@ -330,8 +331,10 @@ function handleSubmit() {
             reset();
             setAttachments([]);
             onClose();
+            toast.success("Payment Request for Approval!");
         },
         onError: (errs) => {
+            toast.error("Something went wrong!");
             console.error(errs);
         },
     });
@@ -579,6 +582,7 @@ function VoidModal({
             onSuccess: () => {
                 reset();
                 onClose();
+                toast.success("Loan Voided Successfully.")
             },
         });
     }

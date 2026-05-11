@@ -45,6 +45,7 @@ import {
     FileIcon,
 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PaymentAttachment {
@@ -305,7 +306,19 @@ function ApproveLoanModal({
 }) {
     const { post, processing } = useForm({});
     function handleApprove() {
-        post(`/admin/loans/${loan.id}/approve`, { onSuccess: onClose });
+        post(`/admin/loans/${loan.id}/approve`,
+            {
+                onSuccess: () => {
+                    onClose;
+                    toast.success("Loan Approved Successfully!");
+
+                },
+                onError: () => {
+                    toast.error("Something went wrong!");
+                }
+                
+             }
+        );
     }
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -383,6 +396,10 @@ function RejectLoanModal({
             onSuccess: () => {
                 reset();
                 onClose();
+                toast.success("Rejected Successfully!");
+            },
+            onError: () => {
+                toast.error('Something went wrong!');
             },
         });
     }
@@ -454,7 +471,15 @@ function ApprovePaymentModal({
     const { post, processing } = useForm({});
     function handleApprove() {
         if (!history) return;
-        post(`/admin/payments/${history.id}/approve`, { onSuccess: onClose });
+        post(`/admin/payments/${history.id}/approve`, {
+            onSuccess: () => {
+                onClose;
+                toast.success('Payment Approved Successfully!');
+            },
+            onError: () => {
+                toast.success('Something went wrong');
+            },
+        });
     }
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -576,7 +601,11 @@ function RejectPaymentModal({
             onSuccess: () => {
                 reset();
                 onClose();
+                toast.success("Payment Rejected Successfully!");
             },
+            onError: () => {
+                toast.success("Something went wrong");
+            }
         });
     }
     return (

@@ -104,13 +104,15 @@ function StatCard({
     label,
     value,
     icon: Icon,
+    variant,
 }: {
     label: string;
     value: number | string;
     icon: React.ElementType;
-}) {
+    }) {
+     const bg = variant === 'green' ? 'bg-[#b4e4a1]' : 'bg-[#c3d9eb]';
     return (
-        <div className="rounded-lg border-0 shadow-sm">
+        <div className={`${bg} rounded-2xl border-0 p-2 shadow-sm`}>
             <div className="flex flex-col gap-4 p-5">
                 <div className="flex w-full items-center justify-between">
                     <h4 className="text-sm font-bold">{label}</h4>
@@ -206,12 +208,14 @@ export default function LoanIndex({ loans, filters }: Props) {
                         label="Total Loans"
                         value={totalLoans}
                         icon={Landmark}
+                        variant="green"
                     />
                     <StatCard label="Pending" value={pending} icon={Clock} />
                     <StatCard
                         label="Active"
                         value={active}
                         icon={PhilippinePeso}
+                        variant="green"
                     />
                     <StatCard
                         label="Completed"
@@ -376,7 +380,6 @@ export default function LoanIndex({ loans, filters }: Props) {
                                         <TableCell>
                                             <StatusBadge status={loan.status} />
                                         </TableCell>
-
 
                                         {/* Action */}
                                         <TableCell className="text-right">

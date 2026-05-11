@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ReviewVerficationEvent;
 use App\Models\Borrower;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -84,6 +86,9 @@ class BorrowerController extends Controller
 
         $borrower->update(['account_status' => 'verified']);
 
+
+        ReviewVerficationEvent::dispatch($borrower->fresh(['user']));
+
         return back()->with('success', 'Borrower verified successfully.');
     }
 
@@ -104,6 +109,13 @@ class BorrowerController extends Controller
             'rejection_reason' => $request->rejection_reason,
         ]);
 
+        ReviewVerficationEvent::dispatch($borrower->fresh(['user']));
+
         return back()->with('success', 'Borrower rejected.');
+    }
+
+    public function creditScore(Borrower $borrower): JsonResponse
+    {
+        return response()->json($borrower->getCreditScore());
     }
 }
