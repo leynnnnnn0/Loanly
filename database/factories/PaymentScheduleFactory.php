@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Loan;
 use App\Models\PaymentSchedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +19,12 @@ class PaymentScheduleFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'loan_id' => Loan::factory(),
+            'amount_due' => fake()->numberBetween(500, 5000),
+            'rebate_amount' => 0,
+            'penalty_amount' => 0,
+            'due_date' => now()->addMonth()->toDateString(),
+            'status' => 'pending',
         ];
     }
 }

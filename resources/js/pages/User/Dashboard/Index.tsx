@@ -32,11 +32,11 @@ export default function Index() {
     const images = [Building, Mansion];
 
     return (
-        <div className="space-y-10 bg-[#FCFCFC] px-50 pb-20">
+        <div className="space-y-8 bg-[#FCFCFC] px-4 pb-16 sm:px-6 lg:px-12 xl:px-24 2xl:px-50">
             <Navbar />
-            <div className="grid grid-cols-3 gap-5">
+            <div className="grid gap-5 lg:grid-cols-3">
                 {/* LEFT COLUMN */}
-                <div className="col-span-2 space-y-3">
+                <div className="space-y-3 lg:col-span-2">
                     <h3 className="text-3xl font-medium">
                         Get Loans in Minutes!
                     </h3>
@@ -47,7 +47,7 @@ export default function Index() {
                     </h6>
 
                     {/* Summary Cards */}
-                    <div className="grid grid-cols-3 gap-5">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-5">
                         {summaryCards.map((item) => (
                             <section
                                 key={item.id}
@@ -65,7 +65,7 @@ export default function Index() {
                                         {item.label}
                                     </h3>
                                 </div>
-                                <h1 className="text-3xl font-bold">
+                                <h1 className="break-words text-2xl font-bold xl:text-3xl">
                                     {fmt(item.value)}
                                 </h1>
                             </section>
@@ -111,10 +111,10 @@ export default function Index() {
                                     return (
                                         <section
                                             key={loan.id}
-                                            className="grid h-52 grid-cols-7"
+                                            className="grid overflow-hidden rounded-lg bg-white sm:min-h-52 sm:grid-cols-7"
                                         >
                                             <div
-                                                className={`col-span-3 flex h-full flex-col justify-between rounded-l-lg rounded-tr-[60px] ${bg} p-5`}
+                                                className={`flex flex-col justify-between gap-5 ${bg} p-5 sm:col-span-3 sm:rounded-l-lg sm:rounded-tr-[60px]`}
                                             >
                                                 <h3 className="font-bold text-black/70">
                                                     {loan.contract_number}
@@ -136,8 +136,8 @@ export default function Index() {
                                                     </h1>
                                                 </div>
                                             </div>
-                                            <div className="h-full rounded-tr-[100px] bg-white">
-                                                <div className="flex h-14 items-center justify-center">
+                                            <div className="bg-white sm:h-full sm:rounded-tr-[100px]">
+                                                <div className="flex items-center justify-center p-4 sm:h-14 sm:p-0">
                                                     <Link
                                                         href={`/user/my-loans/${loan.id}`}
                                                         className="rounded-full bg-black px-8 py-2 text-sm font-bold text-white"
@@ -146,7 +146,7 @@ export default function Index() {
                                                     </Link>
                                                 </div>
                                                 <div
-                                                    className={`flex h-38 flex-col justify-center ${bg}`}
+                                                    className={`flex flex-col justify-center gap-2 ${bg} p-4 sm:h-38`}
                                                 >
                                                     <div>
                                                         <h3 className="text-xs text-black/50">
@@ -172,11 +172,11 @@ export default function Index() {
                                                 </div>
                                             </div>
                                             <div
-                                                className={`relative col-span-3 h-full rounded-tl-[60px] rounded-r-lg ${bg}`}
+                                                className={`relative min-h-48 ${bg} sm:col-span-3 sm:h-full sm:rounded-tl-[60px] sm:rounded-r-lg`}
                                             >
                                                 <img
                                                     src={img}
-                                                    className="r-0 absolute h-52 w-full object-cover"
+                                                    className="absolute h-full w-full object-cover"
                                                     alt="Building"
                                                 />
                                             </div>

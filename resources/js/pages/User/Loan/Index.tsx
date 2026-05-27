@@ -19,10 +19,10 @@ function LoanCard({ loan }: any) {
         }).format(v);
 
     return (
-        <div className="overflow-hidden rounded-xl shadow-sm transition-all duration-300">
-            <section className="grid h-52 grid-cols-7">
+        <div className="overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300">
+            <section className="grid gap-0 sm:min-h-52 sm:grid-cols-7">
                 <div
-                    className={`col-span-3 flex h-full flex-col justify-between rounded-l-xl rounded-tr-[60px] p-5 ${bg}`}
+                    className={`flex flex-col justify-between gap-5 p-5 sm:col-span-3 sm:rounded-l-xl sm:rounded-tr-[60px] ${bg}`}
                 >
                     <div className="flex items-center justify-between">
                         <h3 className="text-sm font-bold text-black/70">
@@ -59,8 +59,8 @@ function LoanCard({ loan }: any) {
                         </h1>
                     </div>
                 </div>
-                <div className="h-full bg-white">
-                    <div className="flex h-14 items-center justify-center">
+                <div className="bg-white sm:h-full">
+                    <div className="flex items-center justify-center p-4 sm:h-14 sm:p-0">
                         <Link
                             href={`/user/my-loans/${loan.id}`}
                             className="rounded-full bg-black px-6 py-2 text-xs font-bold text-white transition-all hover:bg-black/80 active:scale-95"
@@ -68,9 +68,7 @@ function LoanCard({ loan }: any) {
                             Details
                         </Link>
                     </div>
-                    <div
-                        className={`flex h-38 flex-col justify-center gap-2 px-3 ${bg}`}
-                    >
+                    <div className={`flex flex-col justify-center gap-2 p-4 sm:h-38 sm:px-3 ${bg}`}>
                         <div>
                             <h3 className="text-xs text-black/50">Terms</h3>
                             <h1 className="text-lg font-bold">
@@ -88,11 +86,11 @@ function LoanCard({ loan }: any) {
                     </div>
                 </div>
                 <div
-                    className={`relative col-span-3 h-full overflow-hidden rounded-tl-[60px] rounded-r-xl ${bg}`}
+                    className={`relative min-h-48 overflow-hidden sm:col-span-3 sm:h-full sm:rounded-tl-[60px] sm:rounded-r-xl ${bg}`}
                 >
                     <img
                         src={img}
-                        className="absolute h-52 w-full object-cover"
+                        className="absolute h-full w-full object-cover"
                         alt="Property"
                     />
                 </div>
@@ -135,7 +133,7 @@ export default function Index() {
     ).length;
 
     return (
-        <div className="min-h-screen space-y-8 bg-[#FCFCFC] px-50 pb-20">
+        <div className="min-h-screen space-y-8 bg-[#FCFCFC] px-4 pb-16 sm:px-6 lg:px-12 xl:px-24 2xl:px-50">
             <Navbar />
 
             <div className="space-y-1">
@@ -147,7 +145,7 @@ export default function Index() {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-3 gap-5">
+            <div className="grid gap-4 md:grid-cols-3 md:gap-5">
                 {summaryCards.map((item) => (
                     <section
                         key={item.id}
@@ -161,7 +159,7 @@ export default function Index() {
                             </div>
                             <h3 className="text-sm font-bold">{item.label}</h3>
                         </div>
-                        <h1 className="text-3xl font-bold">
+                        <h1 className="break-words text-2xl font-bold lg:text-3xl">
                             {fmt(item.value)}
                         </h1>
                     </section>
@@ -169,7 +167,7 @@ export default function Index() {
             </div>
 
             {/* Apply Banner */}
-            <div className="flex items-center justify-between rounded-xl bg-[#f5f5f5] p-5">
+            <div className="flex flex-col gap-4 rounded-xl bg-[#f5f5f5] p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 className="font-bold">Need a new loan?</h3>
                     <p className="text-sm text-black/50">
@@ -179,12 +177,12 @@ export default function Index() {
                 {isVerified ? (
                     <Link
                         href="/user/my-loans/apply"
-                        className="flex items-center gap-2 rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-black/80 active:scale-95"
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-black/80 active:scale-95 sm:w-auto"
                     >
                         Apply Now <ChevronRight className="size-4" />
                     </Link>
                 ) : (
-                    <div className="flex cursor-not-allowed items-center gap-2 rounded-full bg-black/20 px-6 py-2.5 text-sm font-bold text-black/40">
+                    <div className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-black/20 px-6 py-2.5 text-sm font-bold text-black/40 sm:w-auto">
                         <Lock className="size-4" />
                         Account Not Verified
                     </div>
@@ -193,9 +191,9 @@ export default function Index() {
 
             {/* Loans Table */}
             <div className="space-y-5 rounded-xl bg-white p-6 shadow-sm">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <h3 className="text-xl font-medium">All Loans</h3>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                         <div className="flex items-center gap-2 rounded-full border border-black/10 bg-[#f5f5f5] px-3 py-1.5">
                             <Search className="size-3.5 text-black/40" />
                             <input
@@ -203,10 +201,10 @@ export default function Index() {
                                 placeholder="Search by contract no..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-44 bg-transparent text-xs outline-none placeholder:text-black/30"
+                                className="w-full bg-transparent text-xs outline-none placeholder:text-black/30 lg:w-44"
                             />
                         </div>
-                        <div className="flex items-center gap-1 rounded-full border border-black/10 bg-[#f5f5f5] p-1">
+                        <div className="flex flex-wrap items-center gap-1 rounded-2xl border border-black/10 bg-[#f5f5f5] p-1 sm:rounded-full">
                             {filters.map((f) => (
                                 <button
                                     key={f}

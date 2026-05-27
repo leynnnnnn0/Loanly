@@ -2,329 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\LoanApprovedMail;
-use App\Models\Loan;
-use App\Models\PaymentHistory;
-use App\Models\PaymentSchedule;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Http\Requests\Admin\RejectLoanRequest;
+use App\Http\Requests\Admin\RejectPaymentRequest;
+use App\Http\Requests\Admin\SavePenaltyRequest;
+use App\Http\Requests\Admin\SaveRebateRequest;
+use App\Services\AdminLoanManagementService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class LoanManagementController extends Controller
 {
-    // ─────────────────────────────────────────────────────────────────────────
-    // Index
-    // ─────────────────────────────────────────────────────────────────────────
-    public function index(Request $request)
+    public function index(Request $request, AdminLoanManagementService $loans)
     {
-        $loans = Loan::with(['borrower', 'payment_schedules.payment_histories'])
-            ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->when(
-                $request->search,
-                fn ($q) => $q->where('contract_number', 'like', "%{$request->search}%")
-                    ->orWhereHas(
-                        'borrower',
-                        fn ($q2) => $q2->where('full_name', 'like', "%{$request->search}%")
-                    )
-            )
-            ->latest()
-            ->paginate(8)
-            ->through(function ($loan) {
-                $totalPayable = $loan->payment_schedules->sum(fn ($s) => (float) $s->amount_due + (float) ($s->penalty_amount ?? 0) - (float) ($s->rebate_amount ?? 0));
-
-                $totalApproved = $loan->payment_schedules->sum(fn ($s) => $s->payment_histories->where('status', 'approved')->sum('amount_paid'));
-
-                $pendingCount = $loan->payment_schedules->sum(fn ($s) => $s->payment_histories->where('status', 'for_approval')->count());
-
-                return [
-                    'id' => $loan->id,
-                    'contract_number' => $loan->contract_number,
-                    'borrower_name' => $loan->borrower?->full_name,
-                    'amount' => (float) $loan->amount,
-                    'total_payable' => (float) $totalPayable,
-                    'total_paid' => (float) $totalApproved,
-                    'remaining' => (float) max(0, $totalPayable - $totalApproved),
-                    'status' => $loan->status,
-                    'is_voided' => $loan->is_voided,
-                    'transaction_date' => $loan->transaction_date,
-                    'pending_payments' => (int) $pendingCount,
-                    'payment_frequency' => $loan->payment_frequency,
-                    'loan_duration' => $loan->loan_duration,
-                    'duration_unit' => $loan->duration_unit,
-                ];
-            });
-
-        return Inertia::render('Admin/LoanManagement/Index', [
-            'loans' => $loans,
-            'filters' => $request->only('status', 'search'),
-        ]);
+        return Inertia::render('Admin/LoanManagement/Index', $loans->indexData($request));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Show
-    // ─────────────────────────────────────────────────────────────────────────
-    public function show($id)
+    public function show($id, AdminLoanManagementService $loans)
     {
-        $loan = Loan::with([
-            'borrower',
-            'payment_schedules.payment_histories.attachments',
-        ])->findOrFail($id);
-
-        return Inertia::render('Admin/LoanManagement/Show', ['loan' => $loan]);
+        return Inertia::render('Admin/LoanManagement/Show', ['loan' => $loans->findForShow($id)]);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // Add these imports at the top of LoanManagementController.php
-    // (alongside your existing use statements)
-    // ─────────────────────────────────────────────────────────────────────────────
-    // use Barryvdh\DomPDF\Facade\Pdf;   ← add this line
-
-    // ─────────────────────────────────────────────────────────────────────────────
-    // Replace your existing approveLoan() method with this one.
-    // ─────────────────────────────────────────────────────────────────────────────
-
-    public function approveLoan($id)
+    public function approveLoan($id, AdminLoanManagementService $loans)
     {
-        $loan = Loan::with(['borrower', 'payment_schedules'])->findOrFail($id);
-        abort_if($loan->status !== 'pending' || $loan->is_voided, 422, 'Cannot approve this loan.');
-
-        $loan->update(['status' => 'active']);
-
-        $borrower = $loan->borrower;
-
-        $lender = (object) [
-            'business_name' => config('app.lender_name', 'YOUR LENDING COMPANY'),
-        ];
-
-        $pdfContent = Pdf::loadView(
-            'promissory-note',
-            compact('loan', 'borrower', 'lender')
-        )->setPaper('a4', 'portrait')->output();
-
-        $email = $borrower->user->email ?? null;
-
-        if ($email) {
-            Mail::to($email)
-                ->queue(
-                    (new LoanApprovedMail($loan))
-                        ->withPdfContent(base64_encode($pdfContent))
-                );
-        }
+        $loan = $loans->approveLoan($id);
 
         return back()->with('success', "Loan {$loan->contract_number} approved and promissory note sent.");
     }
 
-    public function rejectLoan(Request $request, $id)
+    public function rejectLoan(RejectLoanRequest $request, $id, AdminLoanManagementService $loans)
     {
-        $loan = Loan::findOrFail($id);
-        abort_if($loan->status !== 'pending' || $loan->is_voided, 422, 'Cannot reject this loan.');
-
-        $validated = $request->validate(['void_reason' => 'required|string|max:500']);
-
-        DB::transaction(function () use ($loan, $validated) {
-            $loan->update([
-                'status' => 'rejected',
-                'remarks' => $validated['void_reason'],
-            ]);
-            $loan->payment_schedules()->where('status', 'pending')->update(['status' => 'cancelled']);
-        });
+        $loan = $loans->rejectLoan($id, $request->validated('void_reason'));
 
         return back()->with('success', "Loan {$loan->contract_number} rejected.");
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Approve Payment — with proper overpayment cascade
-    //
-    // Algorithm:
-    //   1. Mark the payment_history as approved.
-    //   2. Walk all non-paid schedules in due-date order.
-    //   3. For each schedule, compute what is still owed
-    //      (totalDue - sum of ALL approved payments on that schedule).
-    //   4. If the running excess fully covers stillOwed → mark schedule paid,
-    //      subtract stillOwed from excess, continue to next.
-    //   5. If excess is less than stillOwed → schedule stays pending (partial).
-    //      Create a carryover PaymentHistory record on that schedule so the
-    //      partial credit is visible and trackable. Stop.
-    //   6. If excess reaches 0 before all schedules are exhausted → stop.
-    // ─────────────────────────────────────────────────────────────────────────
-    public function approvePayment($historyId)
+    public function approvePayment($historyId, AdminLoanManagementService $loans)
     {
-        $history = PaymentHistory::findOrFail($historyId);
-        abort_if($history->status !== 'for_approval', 422, 'Payment is not pending approval.');
-
-        DB::transaction(function () use ($history) {
-            $history->update(['status' => 'approved']);
-
-            $schedule = PaymentSchedule::findOrFail($history->payment_schedule_id);
-            $loan = Loan::with('payment_schedules')->findOrFail($schedule->loan_id);
-
-            $targetApproved = (float) PaymentHistory::where('payment_schedule_id', $schedule->id)
-                ->where('status', 'approved')
-                ->sum('amount_paid');
-
-            $targetTotalDue = $this->scheduleTotalDue($schedule);
-            $excess = max(0, $targetApproved - $targetTotalDue);
-
-            if ($targetApproved >= $targetTotalDue) {
-                $schedule->update(['status' => 'paid']);
-            }
-
-            if ($excess > 0.001) {
-                $nextSchedules = $loan->payment_schedules()
-                    ->whereIn('status', ['pending', 'overdue'])
-                    ->where('id', '!=', $schedule->id)
-                    ->orderBy('due_date')
-                    ->get();
-
-                $history->amount_paid -= $excess;
-                $history->save();
-
-                foreach ($nextSchedules as $next) {
-                    if ($excess < 0.001) {
-                        break;
-                    }
-
-                    $nextTotalDue = $this->scheduleTotalDue($next);
-                    $nextApproved = (float) PaymentHistory::where('payment_schedule_id', $next->id)
-                        ->where('status', 'approved')
-                        ->sum('amount_paid');
-                    $nextStillOwed = max(0, $nextTotalDue - $nextApproved);
-
-                    if ($nextStillOwed < 0.001) {
-                        $next->update(['status' => 'paid']);
-
-                        continue;
-                    }
-
-                    if ($excess >= $nextStillOwed) {
-                        PaymentHistory::create([
-                            'payment_schedule_id' => $next->id,
-                            'amount_paid' => round($nextStillOwed, 2),
-                            'payment_method' => $history->payment_method,
-                            'payment_date' => $history->payment_date,
-                            'reference_number' => $history->reference_number,
-                            'receipt_number' => null,
-                            'status' => 'approved',
-                        ]);
-                        $next->update(['status' => 'paid']);
-                        $excess -= $nextStillOwed;
-                    } else {
-                        PaymentHistory::create([
-                            'payment_schedule_id' => $next->id,
-                            'amount_paid' => round($excess, 2),
-                            'payment_method' => $history->payment_method,
-                            'payment_date' => $history->payment_date,
-                            'reference_number' => $history->reference_number,
-                            'receipt_number' => null,
-                            'status' => 'approved',
-                        ]);
-                        $excess = 0;
-                        break;
-                    }
-                }
-            }
-
-            $allPaid = $loan->payment_schedules()
-                ->whereNotIn('status', ['paid', 'cancelled'])
-                ->doesntExist();
-
-            if ($allPaid) {
-                $loan->update(['status' => 'completed']);
-            }
-        });
+        $loans->approvePayment($historyId);
 
         return back()->with('success', 'Payment approved. Overpayment cascaded to next schedules.');
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Reject Payment
-    // ─────────────────────────────────────────────────────────────────────────
-    public function rejectPayment(Request $request, $historyId)
+    public function rejectPayment(RejectPaymentRequest $request, $historyId, AdminLoanManagementService $loans)
     {
-        $history = PaymentHistory::findOrFail($historyId);
-        abort_if($history->status !== 'for_approval', 422, 'Payment is not pending approval.');
-
-        $validated = $request->validate(['remarks' => 'nullable|string|max:500']);
-        $history->update([
-            'status' => 'rejected',
-            'remarks' => $validated['remarks'],
-        ]);
+        $loans->rejectPayment($historyId, $request->validated('remarks'));
 
         return back()->with('success', 'Payment rejected.');
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Add / Update Penalty
-    // ─────────────────────────────────────────────────────────────────────────
-    public function addPenalty(Request $request, $scheduleId)
+    public function addPenalty(SavePenaltyRequest $request, $scheduleId, AdminLoanManagementService $loans)
     {
-        $schedule = PaymentSchedule::findOrFail($scheduleId);
-        abort_if($schedule->status === 'paid', 422, 'Cannot modify a paid schedule.');
-
-        $validated = $request->validate([
-            'penalty_amount' => 'required|numeric|min:0',
-            'remarks' => 'nullable|string|max:500',
-        ]);
-
-        $schedule->update(['penalty_amount' => $validated['penalty_amount']]);
+        $loans->savePenalty($scheduleId, $request->validated('penalty_amount'));
 
         return back()->with('success', 'Penalty saved.');
     }
 
-    public function updatePenalty(Request $request, $scheduleId)
+    public function updatePenalty(SavePenaltyRequest $request, $scheduleId, AdminLoanManagementService $loans)
     {
-        return $this->addPenalty($request, $scheduleId);
+        return $this->addPenalty($request, $scheduleId, $loans);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Add / Update Rebate
-    // ─────────────────────────────────────────────────────────────────────────
-    public function addRebate(Request $request, $scheduleId)
+    public function addRebate(SaveRebateRequest $request, $scheduleId, AdminLoanManagementService $loans)
     {
-        $schedule = PaymentSchedule::findOrFail($scheduleId);
-        abort_if($schedule->status === 'paid', 422, 'Cannot modify a paid schedule.');
-
-        $validated = $request->validate([
-            'rebate_amount' => 'required|numeric|min:0',
-            'rebate_remarks' => 'nullable|string|max:500',
-        ]);
-
-        $schedule->update([
-            'rebate_amount' => $validated['rebate_amount'],
-            'rebate_remarks' => $validated['rebate_remarks'] ?? null,
-        ]);
-
-        // Re-evaluate if schedule is now fully paid after rebate
-        $totalApproved = (float) $schedule->payment_histories()->where('status', 'approved')->sum('amount_paid');
-        $totalDue = $this->scheduleTotalDue($schedule->fresh());
-
-        if ($totalApproved >= $totalDue && $totalDue > 0) {
-            $schedule->update(['status' => 'paid']);
-
-            $loan = $schedule->loan;
-            $allPaid = $loan->payment_schedules()->whereNotIn('status', ['paid', 'cancelled'])->doesntExist();
-            if ($allPaid) {
-                $loan->update(['status' => 'completed']);
-            }
-        }
+        $loans->saveRebate(
+            $scheduleId,
+            $request->validated('rebate_amount'),
+            $request->validated('rebate_remarks')
+        );
 
         return back()->with('success', 'Rebate saved.');
     }
 
-    public function updateRebate(Request $request, $scheduleId)
+    public function updateRebate(SaveRebateRequest $request, $scheduleId, AdminLoanManagementService $loans)
     {
-        return $this->addRebate($request, $scheduleId);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Helper
-    // ─────────────────────────────────────────────────────────────────────────
-    private function scheduleTotalDue(PaymentSchedule $s): float
-    {
-        return (float) $s->amount_due
-            + (float) ($s->penalty_amount ?? 0)
-            - (float) ($s->rebate_amount ?? 0);
+        return $this->addRebate($request, $scheduleId, $loans);
     }
 }
