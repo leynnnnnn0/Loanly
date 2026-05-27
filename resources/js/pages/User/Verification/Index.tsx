@@ -10,33 +10,45 @@ import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { toast } from 'sonner';
 
-export default function Index() {
+export default function Index({ borrower }: any) {
+    console.log(borrower);
     const [step, setStep] = useState(1);
     const [submitted, setSubmitted] = useState(false);
 
-   const { data, setData, post, processing } = useForm({
-       first_name: '', 
-       last_name: '', 
-       phone_number: '', 
-       address: '', 
-       date_of_birth: '',
-       nationality: '',
-       id_type: '',
-       id_number: '',
-       issue_date: '',
-       expiry_date: '',
-       id_image: null,
-       references: [],
-   });
+    // Derive prefill values from borrower if present
+    const id = borrower?.identification ?? {};
+    const refs = borrower?.references ?? [];
+
+    const { data, setData, post, processing } = useForm({
+        is_existing: borrower != null,
+        first_name: borrower?.first_name ?? '',
+        last_name: borrower?.last_name ?? '',
+        phone_number: borrower?.phone_number ?? '',
+        address: borrower?.address ?? '',
+        date_of_birth: borrower?.date_of_birth ?? '',
+        nationality: borrower?.nationality ?? '',
+        id_type: id.id_type ?? '',
+        id_number: id.id_number ?? '',
+        issue_date: id.issue_date ?? '',
+        expiry_date: id.expiry_date ?? '',
+        id_image: null, // File objects can't be prefilled
+        references: refs.map((r: any) => ({
+            first_name: r.first_name ?? '',
+            last_name: r.last_name ?? '',
+            relationship: r.relationship ?? '',
+            phone_number: r.phone_number ?? '',
+            address: r.address ?? '',
+        })),
+    });
 
     const next = () => setStep((s) => Math.min(s + 1, 4));
     const back = () => setStep((s) => Math.max(s - 1, 1));
 
-    const handleAboutYouChange = (values) => {
+    const handleAboutYouChange = (values: any) => {
         setData((prev) => ({ ...prev, ...values }));
     };
 
-    const handleIdentityChange = (values) => {
+    const handleIdentityChange = (values: any) => {
         setData((prev) => ({
             ...prev,
             ...values,
@@ -44,31 +56,34 @@ export default function Index() {
         }));
     };
 
-    const handleReferencesChange = (refs) => {
+    const handleReferencesChange = (refs: any) => {
         setData('references', refs);
     };
 
     const handleSubmit = () => {
         post('/user/profile', {
-            forceFormData: true, 
+            forceFormData: true,
             onSuccess: () => {
-                toast.success("Submitted Successfully!")
+                toast.success('Submitted Successfully!');
             },
             onError: (e) => {
-                toast.error("Something went wrong!")
+                toast.error('Something went wrong!');
                 console.log(e);
-            }
+            },
         });
     };
 
     const aboutYou = {
-        first_name: data.first_name, 
-        last_name: data.last_name, 
-        phone_number: data.phone_number, 
+        first_name: data.first_name,
+        last_name: data.last_name,
+        phone_number: data.phone_number,
         address: data.address,
         date_of_birth: data.date_of_birth,
         nationality: data.nationality,
     };
+
+    // Prefill image_preview from existing ID image URL if no new file chosen
+    const existingIdImageUrl = borrower?.identification?.id_image_url ?? null;
 
     const identity = {
         id_type: data.id_type,
@@ -78,7 +93,7 @@ export default function Index() {
         image_file: data.id_image,
         image_preview: data.id_image
             ? URL.createObjectURL(data.id_image)
-            : null,
+            : existingIdImageUrl,
     };
 
     return (

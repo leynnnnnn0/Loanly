@@ -20,7 +20,8 @@ class Borrower extends Model
         'date_of_birth',
         'nationality',
         'account_status',
-        'account_remarks'
+        'account_remarks',
+        'rejection_reason'
     ];
 
     protected $appends = [

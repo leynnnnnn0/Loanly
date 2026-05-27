@@ -123,6 +123,7 @@ class LoanManagementController extends Controller
     }
     public function rejectLoan(Request $request, $id)
     {
+        dd($request);
         $loan = Loan::findOrFail($id);
         abort_if($loan->status !== 'pending' || $loan->is_voided, 422, 'Cannot reject this loan.');
 

@@ -78,6 +78,7 @@ Route::prefix('user')->middleware(['auth'])->group(function () {
 Route::get('/borrowers/{borrower}/credit-score', [BorrowerController::class, 'creditScore']);
 
 Route::put('/admin/borrowers/{borrower}/verify', [BorrowerController::class, 'verify']);
+Route::put('/admin/borrowers/{borrower}/reject', [BorrowerController::class, 'reject']);
 Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 require __DIR__.'/settings.php';

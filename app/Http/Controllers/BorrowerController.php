@@ -100,14 +100,16 @@ class BorrowerController extends Controller
             'Cannot reject an already verified borrower.'
         );
 
-        $request->validate([
+
+        $validated = $request->validate([
             'rejection_reason' => ['required', 'string', 'max:500'],
         ]);
 
         $borrower->update([
             'account_status'   => 'rejected',
-            'rejection_reason' => $request->rejection_reason,
+            'rejection_reason' => $validated['rejection_reason'],
         ]);
+
 
         ReviewVerficationEvent::dispatch($borrower->fresh(['user']));
 

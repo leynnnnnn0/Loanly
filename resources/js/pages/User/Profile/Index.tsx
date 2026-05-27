@@ -138,6 +138,8 @@ export default function Index({ borrower }: Props) {
 
     const initials =
         `${borrower.first_name?.[0] ?? ''}${borrower.last_name?.[0] ?? ''}`.toUpperCase();
+    
+ 
 
     return (
         <>
@@ -183,6 +185,7 @@ export default function Index({ borrower }: Props) {
                                 {status.label}
                             </span>
 
+                            <a href={`/user/verification?id=${borrower.id}`}>Reverify</a>
                         </div>
                     </div>
                 </div>
@@ -192,7 +195,9 @@ export default function Index({ borrower }: Props) {
                 >
                     <BannerIcon className="mt-0.5 size-4 shrink-0" />
                     <p className="text-sm leading-relaxed">
-                        {status.bannerText}
+                        {status.bannerText}{' '}
+                        {borrower.account_status == 'rejected' &&
+                            'Reason: ' + borrower.rejection_reason}
                     </p>
                 </div>
 
@@ -424,7 +429,7 @@ export default function Index({ borrower }: Props) {
                                             >
                                                 {/* Avatar + name */}
                                                 <div className="flex items-center gap-3">
-                                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary  text-sm font-bold text-white uppercase">
+                                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white uppercase">
                                                         {ref.first_name[0]}
                                                         {ref.last_name[0]}
                                                     </div>
