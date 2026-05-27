@@ -20,6 +20,7 @@ XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import ConfirmActionDialog from '@/components/confirm-action-dialog';
 import CreditScoreBadge from '@/components/CreditScoreBadge';
 import { Button } from '@/components/ui/button';
 import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
@@ -246,12 +247,16 @@ function RejectModal({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function Show({ borrower }: Props) {
     const [rejectOpen, setRejectOpen] = useState(false);
+    const [verifyOpen, setVerifyOpen] = useState(false);
 
     const { put, processing } = useForm({});
 
     const handleVerify = () => {
         put(`/admin/borrowers/${borrower.id}/verify`, {
-            onSuccess: () => toast.success('Borrower verified successfully.'),
+            onSuccess: () => {
+                setVerifyOpen(false);
+                toast.success('Borrower verified successfully.');
+            },
             onError: () => toast.error('Failed to verify borrower.'),
         });
     };
@@ -291,7 +296,7 @@ export default function Show({ borrower }: Props) {
                         {borrower.account_status === 'pending' && (
                             <>
                                 <Button
-                                    onClick={handleVerify}
+                                    onClick={() => setVerifyOpen(true)}
                                     disabled={processing}
                                     className="gap-1.5 bg-green-600 text-white hover:bg-green-700"
                                 >
@@ -634,6 +639,15 @@ export default function Show({ borrower }: Props) {
                 open={rejectOpen}
                 onClose={() => setRejectOpen(false)}
                 borrowerId={borrower.id}
+            />
+            <ConfirmActionDialog
+                open={verifyOpen}
+                title="Verify borrower?"
+                description="This will approve the borrower profile and allow them to apply for loans."
+                confirmLabel="Verify borrower"
+                processing={processing}
+                onConfirm={handleVerify}
+                onOpenChange={setVerifyOpen}
             />
         </>
     );

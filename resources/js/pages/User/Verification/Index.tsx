@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import ConfirmActionDialog from '@/components/confirm-action-dialog';
 import Navbar from '@/components/Navbar';
 import {
     aboutYouSchema,
@@ -18,6 +19,7 @@ import VerificationSuccess from './components/VerificationSuccess';
 export default function Index({ borrower }: any) {
     const [step, setStep] = useState(1);
     const [submitted] = useState(false);
+    const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
 
     // Derive prefill values from borrower if present
     const id = borrower?.identification ?? {};
@@ -70,10 +72,11 @@ export default function Index({ borrower }: any) {
         setData('references', refs);
     };
 
-    const handleSubmit = () => {
+    const submitVerification = () => {
         post('/user/profile', {
             forceFormData: true,
             onSuccess: () => {
+                setConfirmSubmitOpen(false);
                 toast.success('Submitted Successfully!');
             },
             onError: (e) => {
@@ -176,7 +179,7 @@ export default function Index({ borrower }: any) {
                                 identity={identity}
                                 references={data.references}
                                 onBack={back}
-                                onSubmit={handleSubmit}
+                                onSubmit={() => setConfirmSubmitOpen(true)}
                                 isSubmitting={processing}
                                 onGoToStep={setStep}
                             />
@@ -184,6 +187,15 @@ export default function Index({ borrower }: any) {
                     </div>
                 </div>
             )}
+            <ConfirmActionDialog
+                open={confirmSubmitOpen}
+                title="Submit verification?"
+                description="Your borrower details, ID, and references will be sent for admin review."
+                confirmLabel="Submit verification"
+                processing={processing}
+                onConfirm={submitVerification}
+                onOpenChange={setConfirmSubmitOpen}
+            />
         </div>
     );
 }

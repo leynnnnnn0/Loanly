@@ -37,6 +37,16 @@ class User extends Authenticatable
         return $this->hasOne(Borrower::class);
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function dashboardPath(): string
+    {
+        return $this->isAdmin() ? '/dashboard' : '/user/dashboard';
+    }
+
     public function routeNotificationForMail(): string
     {
         return $this->email;

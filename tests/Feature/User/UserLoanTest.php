@@ -5,11 +5,19 @@ use App\Models\Loan;
 use App\Models\PaymentHistory;
 use App\Models\PaymentSchedule;
 use App\Models\User;
+use App\Notifications\LoanActivityNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
 test('verified borrower can submit a loan application and schedules are generated', function () {
+    Notification::fake();
+    Storage::fake('public');
+
+    $admin = User::factory()->create(['role' => 'admin']);
     $user = User::factory()->create();
     $borrower = Borrower::factory()->for($user)->verified()->create();
 
@@ -21,6 +29,10 @@ test('verified borrower can submit a loan application and schedules are generate
             'transaction_date' => now()->toDateString(),
             'reason' => 'Working capital',
             'payment_frequency' => 'monthly',
+            'attachments' => [
+                UploadedFile::fake()->image('business-permit.jpg'),
+                UploadedFile::fake()->create('income-proof.pdf', 128, 'application/pdf'),
+            ],
         ]);
 
     $response
@@ -32,7 +44,14 @@ test('verified borrower can submit a loan application and schedules are generate
     expect($loan->status)->toBe('pending')
         ->and($loan->interest_type)->toBe('percentage')
         ->and((float) $loan->interest_value)->toBe(2.0)
-        ->and($loan->payment_schedules)->toHaveCount(3);
+        ->and($loan->payment_schedules)->toHaveCount(3)
+        ->and($loan->attachments)->toHaveCount(2);
+
+    $loan->attachments->each(
+        fn ($attachment) => Storage::disk('public')->assertExists($attachment->image_path)
+    );
+
+    Notification::assertSentTo($admin, LoanActivityNotification::class);
 });
 
 test('loan application rejects amounts above borrower capacity', function () {
@@ -60,6 +79,9 @@ test('loan application rejects amounts above borrower capacity', function () {
 });
 
 test('borrower can void only their pending loan', function () {
+    Notification::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
     $user = User::factory()->create();
     $borrower = Borrower::factory()->for($user)->verified()->create();
     $loan = Loan::factory()->for($borrower)->create(['status' => 'pending']);
@@ -75,9 +97,14 @@ test('borrower can void only their pending loan', function () {
 
     expect($loan->refresh()->status)->toBe('voided')
         ->and($loan->payment_schedules()->first()->status)->toBe('cancelled');
+
+    Notification::assertSentTo($admin, LoanActivityNotification::class);
 });
 
 test('borrower payment submissions are recorded for approval', function () {
+    Notification::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
     $user = User::factory()->create();
     $borrower = Borrower::factory()->for($user)->verified()->create();
     $loan = Loan::factory()->for($borrower)->active()->create();
@@ -99,4 +126,6 @@ test('borrower payment submissions are recorded for approval', function () {
 
     expect($history->status)->toBe('for_approval')
         ->and((float) $history->amount_paid)->toBe(500.0);
+
+    Notification::assertSentTo($admin, LoanActivityNotification::class);
 });

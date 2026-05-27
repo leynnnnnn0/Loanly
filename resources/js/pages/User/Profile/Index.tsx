@@ -1,6 +1,7 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import {
 AlertCircle,
+ArrowRight,
 Calendar,
 CheckCircle2,
 Clock,
@@ -30,6 +31,7 @@ interface Borrower {
     date_of_birth: string;
     nationality: string;
     account_status: 'pending' | 'verified' | 'rejected' | 'not_verified';
+    rejection_reason?: string | null;
     created_at: string;
     identification: {
         id_type: string;
@@ -132,6 +134,9 @@ export default function Index({ borrower }: Props) {
         accountStatusMap[borrower.account_status] ?? accountStatusMap.pending;
     const StatusIcon = status.icon;
     const BannerIcon = status.bannerIcon;
+    const canReverify =
+        borrower.account_status === 'rejected' ||
+        borrower.account_status === 'not_verified';
 
     const initials =
         `${borrower.first_name?.[0] ?? ''}${borrower.last_name?.[0] ?? ''}`.toUpperCase();
@@ -142,7 +147,7 @@ export default function Index({ borrower }: Props) {
         <>
             <Head title="My Profile" />
 
-            <div className="min-h-screen space-y-8 bg-[#FCFCFC] px-50 pb-20">
+            <div className="min-h-screen space-y-6 bg-[#FCFCFC] px-4 pb-20 sm:px-6 lg:px-12 xl:px-24 2xl:px-50">
                 <Navbar />
 
                 {/* ── Profile hero ── */}
@@ -182,21 +187,65 @@ export default function Index({ borrower }: Props) {
                                 {status.label}
                             </span>
 
-                            <a href={`/user/verification?id=${borrower.id}`}>Reverify</a>
+                            {canReverify && (
+                                <Link
+                                    href={`/user/verification?id=${borrower.id}`}
+                                    className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-accent/90"
+                                >
+                                    Reverify now
+                                    <ArrowRight className="size-4" />
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>
                 {/* ── Status banner ── */}
-                <div
-                    className={`flex items-start gap-3 rounded-xl border p-4 ${status.banner}`}
-                >
-                    <BannerIcon className="mt-0.5 size-4 shrink-0" />
-                    <p className="text-sm leading-relaxed">
-                        {status.bannerText}{' '}
-                        {borrower.account_status == 'rejected' &&
-                            'Reason: ' + borrower.rejection_reason}
-                    </p>
-                </div>
+                {borrower.account_status === 'rejected' ? (
+                    <div className="overflow-hidden rounded-2xl border border-red-200 bg-white shadow-sm">
+                        <div className="flex flex-col gap-4 bg-red-50 p-5 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex gap-3">
+                                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                                    <XCircle className="size-5 text-red-600" />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-bold text-red-950">
+                                        Verification needs another look
+                                    </h2>
+                                    <p className="mt-1 text-sm leading-relaxed text-red-700">
+                                        Your previous application was rejected.
+                                        Review the note below, update your
+                                        details, and submit again.
+                                    </p>
+                                </div>
+                            </div>
+                            <Link
+                                href={`/user/verification?id=${borrower.id}`}
+                                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-700"
+                            >
+                                Reverify application
+                                <ArrowRight className="size-4" />
+                            </Link>
+                        </div>
+                        <div className="border-t border-red-100 p-5">
+                            <p className="text-xs font-bold tracking-wide text-red-500 uppercase">
+                                Rejection reason
+                            </p>
+                            <p className="mt-2 text-sm leading-relaxed text-red-950">
+                                {borrower.rejection_reason ||
+                                    'No specific reason was provided. Please review your borrower information before resubmitting.'}
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <div
+                        className={`flex items-start gap-3 rounded-xl border p-4 ${status.banner}`}
+                    >
+                        <BannerIcon className="mt-0.5 size-4 shrink-0" />
+                        <p className="text-sm leading-relaxed">
+                            {status.bannerText}
+                        </p>
+                    </div>
+                )}
 
                 {/* ── Tabs ── */}
                 <Tabs defaultValue="personal">

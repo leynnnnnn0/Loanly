@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Borrower;
 use App\Models\Loan;
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -20,6 +21,8 @@ class UserLoanService
     private const INTEREST_PERIOD = 'monthly';
 
     private const DURATION_UNIT = 'months';
+
+    public function __construct(private readonly LoanNotificationService $notifications) {}
 
     /**
      * @return array{borrower: Borrower|null, isVerified: bool, loans: Collection<int, array<string, mixed>>, summaries: array<string, float|int>}
@@ -75,8 +78,9 @@ class UserLoanService
 
     /**
      * @param  array<string, mixed>  $data
+     * @param  array<int, UploadedFile>  $attachments
      */
-    public function submitApplication(Borrower $borrower, array $data): Loan
+    public function submitApplication(Borrower $borrower, array $data, array $attachments = []): Loan
     {
         $capacity = $this->borrowingCapacity($borrower);
 
@@ -86,7 +90,7 @@ class UserLoanService
             ]);
         }
 
-        return DB::transaction(function () use ($borrower, $data) {
+        $loan = DB::transaction(function () use ($borrower, $data, $attachments) {
             $loan = Loan::create([
                 ...$this->businessDefaults(),
                 'contract_number' => $this->nextContractNumber(),
@@ -101,14 +105,24 @@ class UserLoanService
 
             $loan->payment_schedules()->createMany($this->generateSchedules($loan));
 
+            foreach ($attachments as $file) {
+                $loan->attachments()->create([
+                    'image_path' => $file->store("loan_attachments/{$loan->id}", 'public'),
+                ]);
+            }
+
             return $loan;
         });
+
+        $this->notifications->loanSubmitted($loan->fresh('borrower'));
+
+        return $loan;
     }
 
     public function findOwnedLoan(Borrower $borrower, int|string $loanId): Loan
     {
         return Loan::where('borrower_id', $borrower->id)
-            ->with(['payment_schedules.payment_histories.attachments'])
+            ->with(['attachments', 'payment_schedules.payment_histories.attachments'])
             ->findOrFail($loanId);
     }
 
@@ -142,6 +156,8 @@ class UserLoanService
                 ->where('status', 'pending')
                 ->update(['status' => 'cancelled']);
         });
+
+        $this->notifications->loanVoided($loan->fresh('borrower'));
     }
 
     /**

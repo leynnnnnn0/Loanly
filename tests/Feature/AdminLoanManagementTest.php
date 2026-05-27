@@ -6,13 +6,17 @@ use App\Models\Loan;
 use App\Models\PaymentHistory;
 use App\Models\PaymentSchedule;
 use App\Models\User;
+use App\Notifications\LoanActivityNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
 test('admin can reject a pending loan and cancel its pending schedules', function () {
-    $admin = User::factory()->create();
+    Notification::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
     $borrower = Borrower::factory()->verified()->create();
     $loan = Loan::factory()->for($borrower)->create(['status' => 'pending']);
     $schedule = PaymentSchedule::factory()->for($loan)->create(['status' => 'pending']);
@@ -31,10 +35,14 @@ test('admin can reject a pending loan and cancel its pending schedules', functio
     expect($loan->refresh()->status)->toBe('rejected')
         ->and($loan->remarks)->toBe('Incomplete documents.')
         ->and($schedule->refresh()->status)->toBe('cancelled');
+
+    Notification::assertSentTo($borrower->user, LoanActivityNotification::class);
 });
 
 test('admin approving an overpayment cascades the excess to the next schedule', function () {
-    $admin = User::factory()->create();
+    Notification::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
     $borrower = Borrower::factory()->verified()->create();
     $loan = Loan::factory()->for($borrower)->active()->create();
     $firstSchedule = PaymentSchedule::factory()
@@ -66,12 +74,15 @@ test('admin approving an overpayment cascades the excess to the next schedule', 
         ->and($firstSchedule->refresh()->status)->toBe('paid')
         ->and($nextSchedule->refresh()->status)->toBe('pending')
         ->and((float) $carryOver->amount_paid)->toBe(500.0);
+
+    Notification::assertSentTo($borrower->user, LoanActivityNotification::class);
 });
 
 test('admin can approve a pending loan without rendering mail inline in the controller', function () {
     Mail::fake();
+    Notification::fake();
 
-    $admin = User::factory()->create();
+    $admin = User::factory()->create(['role' => 'admin']);
     $borrower = Borrower::factory()->verified()->create();
     $loan = Loan::factory()->for($borrower)->create(['status' => 'pending']);
 
@@ -87,10 +98,13 @@ test('admin can approve a pending loan without rendering mail inline in the cont
     expect($loan->refresh()->status)->toBe('active');
 
     Mail::assertQueued(LoanApprovedMail::class);
+    Notification::assertSentTo($borrower->user, LoanActivityNotification::class);
 });
 
 test('admin rebate marks a schedule paid when approved payments cover the adjusted due amount', function () {
-    $admin = User::factory()->create();
+    Notification::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
     $borrower = Borrower::factory()->verified()->create();
     $loan = Loan::factory()->for($borrower)->active()->create();
     $schedule = PaymentSchedule::factory()
@@ -117,4 +131,6 @@ test('admin rebate marks a schedule paid when approved payments cover the adjust
     expect($schedule->refresh()->status)->toBe('paid')
         ->and((float) $schedule->rebate_amount)->toBe(200.0)
         ->and($schedule->rebate_remarks)->toBe('Early settlement.');
+
+    Notification::assertSentTo($borrower->user, LoanActivityNotification::class);
 });

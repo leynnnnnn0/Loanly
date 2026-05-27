@@ -36,4 +36,9 @@ class Loan extends Model
     {
         return $this->hasMany(PaymentSchedule::class);
     }
+
+    public function attachments()
+    {
+        return $this->hasMany(LoanAttachment::class);
+    }
 }

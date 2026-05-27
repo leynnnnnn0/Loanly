@@ -36,7 +36,11 @@ class LoanController extends Controller
 
     public function store(StoreLoanApplicationRequest $request, UserLoanService $loans)
     {
-        $loans->submitApplication($request->user()->borrower, $request->validated());
+        $loans->submitApplication(
+            $request->user()->borrower,
+            $request->validated(),
+            $request->file('attachments', [])
+        );
 
         return redirect()->to('/user/my-loans')
             ->with('success', 'Loan application submitted successfully!');

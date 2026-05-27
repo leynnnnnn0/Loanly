@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Mail;
 
 class AdminLoanManagementService
 {
+    public function __construct(private readonly LoanNotificationService $notifications) {}
+
     /**
      * @return array<string, mixed>
      */
@@ -44,6 +46,7 @@ class AdminLoanManagementService
     public function findForShow(int|string $id): Loan
     {
         return Loan::with([
+            'attachments',
             'borrower',
             'payment_schedules.payment_histories.attachments',
         ])->findOrFail($id);
@@ -56,6 +59,7 @@ class AdminLoanManagementService
 
         $loan->update(['status' => 'active']);
         $this->queuePromissoryNote($loan);
+        $this->notifications->loanApproved($loan);
 
         return $loan;
     }
@@ -75,6 +79,8 @@ class AdminLoanManagementService
                 ->where('status', 'pending')
                 ->update(['status' => 'cancelled']);
         });
+
+        $this->notifications->loanRejected($loan->fresh(['borrower.user']));
 
         return $loan;
     }
@@ -104,6 +110,8 @@ class AdminLoanManagementService
 
             $this->completeLoanWhenPaid($loan);
         });
+
+        $this->notifications->paymentApproved($history->fresh('payment_schedule.loan.borrower.user'));
     }
 
     public function rejectPayment(int|string $historyId, ?string $remarks): void
@@ -115,12 +123,15 @@ class AdminLoanManagementService
             'status' => 'rejected',
             'remarks' => $remarks,
         ]);
+
+        $this->notifications->paymentRejected($history->fresh('payment_schedule.loan.borrower.user'));
     }
 
     public function savePenalty(int|string $scheduleId, float|int|string $amount): void
     {
         $schedule = $this->editableSchedule($scheduleId);
         $schedule->update(['penalty_amount' => $amount]);
+        $this->notifications->penaltyUpdated($schedule->fresh('loan.borrower.user'));
     }
 
     public function saveRebate(int|string $scheduleId, float|int|string $amount, ?string $remarks): void
@@ -132,6 +143,7 @@ class AdminLoanManagementService
         ]);
 
         $this->markSchedulePaidIfSettled($schedule->fresh());
+        $this->notifications->rebateUpdated($schedule->fresh('loan.borrower.user'));
     }
 
     /**

@@ -53,7 +53,8 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PaymentAttachment {
     id: number;
-    payment_history_id: number;
+    payment_history_id?: number;
+    loan_id?: number;
     image_path: string; // relative path, e.g. attachments/5/receipt.jpg
 }
 
@@ -106,6 +107,7 @@ interface Loan {
     duration_unit: string;
     payment_frequency: string;
     reason: string;
+    attachments: PaymentAttachment[];
     payment_schedules: PaymentSchedule[];
     borrower: Borrower;
 }
@@ -1190,6 +1192,12 @@ export default function AdminLoanShow({ loan }: { loan: Loan }) {
                             </div>
                         </SectionCard>
                     </div>
+
+                    {loan.attachments?.length > 0 && (
+                        <SectionCard icon={Paperclip} title="Application Files">
+                            <AttachmentGrid attachments={loan.attachments} />
+                        </SectionCard>
+                    )}
 
                     {/* Progress */}
                     <SectionCard icon={TrendingUp} title="Payment Progress">

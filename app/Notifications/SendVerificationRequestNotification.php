@@ -17,7 +17,7 @@ class SendVerificationRequestNotification extends Notification implements Should
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'broadcast'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     public function toMail(object $notifiable): SendVerificationMail
@@ -28,9 +28,19 @@ class SendVerificationRequestNotification extends Notification implements Should
 
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
-        return new BroadcastMessage([
+        return new BroadcastMessage($this->toArray($notifiable));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
             'message' => 'New Verification Request',
+            'description' => "{$this->borrower->full_name} submitted borrower verification.",
+            'action_url' => "/borrowers/{$this->borrower->id}",
             'borrower' => $this->borrower->full_name,
-        ]);
+        ];
     }
 }

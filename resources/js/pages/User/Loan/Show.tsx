@@ -80,6 +80,12 @@ interface PaymentHistory {
     status: string; // for_approval | approved | rejected
 }
 
+interface LoanAttachment {
+    id: number;
+    loan_id: number;
+    image_path: string;
+}
+
 interface PaymentSchedule {
     id: number;
     due_date: string;
@@ -107,6 +113,7 @@ interface Loan {
     payment_frequency: string;
     total_paid: number;
     remaining: number;
+    attachments: LoanAttachment[];
     payment_schedules: PaymentSchedule[];
 }
 
@@ -735,6 +742,12 @@ function PendingState({ loan }: { loan: Loan }) {
                         </div>
                     </SectionCard>
 
+                    {loan.attachments?.length > 0 && (
+                        <SectionCard icon={Paperclip} title="Uploaded Files">
+                            <AttachmentGrid attachments={loan.attachments} />
+                        </SectionCard>
+                    )}
+
                     <SectionCard icon={TrendingUp} title="Schedule Preview">
                         <p className="mb-4 text-xs text-muted-foreground">
                             Preview only — confirmed upon approval.
@@ -1017,6 +1030,12 @@ return;
                             />
                         </div>
                     </SectionCard>
+
+                    {loan.attachments?.length > 0 && (
+                        <SectionCard icon={Paperclip} title="Application Files">
+                            <AttachmentGrid attachments={loan.attachments} />
+                        </SectionCard>
+                    )}
 
                     {/* Progress */}
                     <SectionCard icon={TrendingUp} title="Payment Progress">
@@ -1510,7 +1529,8 @@ return;
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PaymentAttachment {
     id: number;
-    payment_history_id: number;
+    payment_history_id?: number;
+    loan_id?: number;
     image_path: string; // relative path, e.g. attachments/5/receipt.jpg
 }
 

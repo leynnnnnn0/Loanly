@@ -1,99 +1,8 @@
 import { usePage } from '@inertiajs/react';
-import { useEcho } from '@laravel/echo-react';
-import { Bell } from 'lucide-react';
-import { useEffect,useState } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import NotificationBell from '@/components/notification-bell';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
-
-function NotificationBell({ userId }: { userId: number }) {
-    const [notifications, setNotifications] = useState<any[]>([]);
-    const [open, setOpen] = useState(false);
-
-    useEcho(
-        `App.Models.User.${userId}`,
-        '.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated',
-        (notification: any) => {
-            setNotifications((prev) => [notification, ...prev]);
-        },
-    );
-
-    const markAllAsRead = () => {
-        setNotifications([]);
-        setOpen(false);
-    };
-
-    return (
-        <div className="relative">
-            <button onClick={() => setOpen(!open)}>
-                <Bell />
-                {notifications.length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                        {notifications.length}
-                    </span>
-                )}
-            </button>
-            {open && (
-                <div className="absolute right-0 z-50 mt-2 w-72 rounded-lg border bg-white shadow-lg">
-                    <div className="flex items-center justify-between border-b p-3">
-                        <span className="font-semibold">Notifications</span>
-                        {notifications.length > 0 && (
-                            <button
-                                onClick={markAllAsRead}
-                                className="text-xs text-blue-500 hover:underline"
-                            >
-                                Mark all as read
-                            </button>
-                        )}
-                    </div>
-                    {notifications.length === 0 ? (
-                        <div className="p-4 text-sm text-gray-500">
-                            No notifications
-                        </div>
-                    ) : (
-                        notifications.map((notif, index) => (
-                            <div
-                                key={index}
-                                className="flex items-start justify-between border-b p-3 text-sm hover:bg-gray-50"
-                            >
-                                <span>
-                                    🔔 {notif.message} from{' '}
-                                    <strong>{notif.borrower}</strong>
-                                </span>
-                                <button
-                                    onClick={() =>
-                                        setNotifications((prev) =>
-                                            prev.filter((_, i) => i !== index),
-                                        )
-                                    }
-                                    className="ml-2 text-xs text-gray-400 hover:text-red-500"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        ))
-                    )}
-                </div>
-            )}
-        </div>
-    );
-}
-
-function ClientOnly({ children }: { children: React.ReactNode }) {
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        const timer = window.setTimeout(() => setMounted(true), 0);
-
-        return () => window.clearTimeout(timer);
-    }, []);
-
-    if (!mounted) {
-        return null;
-    }
-
-    return <>{children}</>;
-}
 
 export function AppSidebarHeader({
     breadcrumbs = [],
@@ -109,9 +18,7 @@ export function AppSidebarHeader({
                     <SidebarTrigger className="-ml-1" />
                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                 </div>
-                <ClientOnly>
-                    <NotificationBell userId={auth.user.id} />
-                </ClientOnly>
+                <NotificationBell userId={auth.user.id} />
             </div>
         </header>
     );

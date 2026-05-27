@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class LoanPaymentService
 {
+    public function __construct(private readonly LoanNotificationService $notifications) {}
+
     /**
      * @param  array<string, mixed>  $data
      * @param  array<int, UploadedFile>  $attachments
@@ -23,7 +25,7 @@ class LoanPaymentService
         abort_if($schedule->loan->status !== 'active', 422, 'Loan is not active.');
         abort_if($schedule->status === 'paid', 422, 'This schedule is already paid.');
 
-        return DB::transaction(function () use ($data, $schedule, $attachments) {
+        $history = DB::transaction(function () use ($data, $schedule, $attachments) {
             $history = PaymentHistory::create([
                 'payment_schedule_id' => $schedule->id,
                 'amount_paid' => $data['amount_paid'],
@@ -42,5 +44,9 @@ class LoanPaymentService
 
             return $history;
         });
+
+        $this->notifications->paymentSubmitted($history->fresh('payment_schedule.loan.borrower'));
+
+        return $history;
     }
 }

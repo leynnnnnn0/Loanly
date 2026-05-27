@@ -22,6 +22,8 @@ class StoreLoanApplicationRequest extends FormRequest
             'transaction_date' => ['required', 'date'],
             'reason' => ['required', 'string', 'max:500'],
             'payment_frequency' => ['required', 'in:monthly,weekly'],
+            'attachments' => ['nullable', 'array', 'max:10'],
+            'attachments.*' => ['file', 'mimes:jpeg,jpg,png,gif,webp,pdf', 'max:5120'],
         ];
     }
 }

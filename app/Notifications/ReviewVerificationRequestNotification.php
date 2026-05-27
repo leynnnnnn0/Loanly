@@ -27,7 +27,7 @@ class ReviewVerificationRequestNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['broadcast'];
+        return ['database', 'broadcast'];
     }
 
     /**
@@ -47,21 +47,22 @@ class ReviewVerificationRequestNotification extends Notification
         $message = $accountStatus == 'verified' ? 'Your account is now verified' : 'You account verification request is declined';
         $description = $accountStatus == 'verified' ? 'You can now request to get a loan up to 20,000' : 'Your application is rejected. Go to profile page to see the reason';
 
-        return new BroadcastMessage([
-            'message' => $message,
-            'description' => $description,
-        ]);
+        return new BroadcastMessage($this->toArray($notifiable));
     }
 
     /**
-     * Get the array representation of the notification.
-     *
      * @return array<string, mixed>
      */
     public function toArray(object $notifiable): array
     {
+        $accountStatus = $this->borrower->account_status;
+        $message = $accountStatus == 'verified' ? 'Your account is now verified' : 'Your account verification request was declined';
+        $description = $accountStatus == 'verified' ? 'You can now request to get a loan up to 20,000.' : 'Your application was rejected. Go to your profile page to see the reason.';
+
         return [
-            //
+            'message' => $message,
+            'description' => $description,
+            'action_url' => '/user/profile',
         ];
     }
 }

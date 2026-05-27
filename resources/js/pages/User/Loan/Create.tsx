@@ -3,11 +3,15 @@ import {
 Calendar,
 ChevronLeft,
 ChevronRight,
+FileText,
 Info,
+Paperclip,
 PhilippinePeso,
+X,
 } from 'lucide-react';
-import { useEffect,useMemo,useState } from 'react';
+import { useEffect,useMemo,useRef,useState } from 'react';
 import { toast } from 'sonner';
+import ConfirmActionDialog from '@/components/confirm-action-dialog';
 import LowCreditBlock from '@/components/LowCreditBlock';
 import Navbar from '@/components/Navbar';
 import { Separator } from '@/components/ui/separator';
@@ -31,6 +35,17 @@ const fmt = (v: number) =>
         style: 'currency',
         currency: 'PHP',
     }).format(v);
+
+const MAX_ATTACHMENTS = 10;
+const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
+const ALLOWED_ATTACHMENT_TYPES = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'application/pdf',
+];
 
 function addPeriod(date: Date, n: number, unit: 'weeks' | 'months'): Date {
     const d = new Date(date);
@@ -110,7 +125,10 @@ export default function Create() {
         transaction_date: new Date().toISOString().split('T')[0],
         reason: '',
         payment_frequency: 'monthly' as 'monthly' | 'weekly',
+        attachments: [] as File[],
     });
+    const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const schedule = useMemo(
         () =>
@@ -133,16 +151,65 @@ export default function Create() {
     const totalRepayment = schedule.reduce((s, r) => s + r.total, 0);
     const totalInterest = schedule.reduce((s, r) => s + r.interest, 0);
 
-    function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
+    function submitApplication() {
         post('/user/my-loans', {
+            forceFormData: true,
             onSuccess: () => {
-                 toast.success('Submitted Successfully!');
+                setConfirmSubmitOpen(false);
+                toast.success('Submitted Successfully!');
             },
             onError: () => {
-                toast.success("Something went wrong!");
-            }
+                toast.success('Something went wrong!');
+            },
         });
+    }
+
+    function handleAttachmentChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const selected = Array.from(e.target.files ?? []);
+
+        if (!selected.length) {
+            return;
+        }
+
+        const accepted = selected.filter((file) => {
+            if (!ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+                toast.error(`${file.name} must be an image or PDF.`);
+
+                return false;
+            }
+
+            if (file.size > MAX_ATTACHMENT_SIZE) {
+                toast.error(`${file.name} must be 5 MB or smaller.`);
+
+                return false;
+            }
+
+            return true;
+        });
+
+        const nextAttachments = [...data.attachments, ...accepted].slice(
+            0,
+            MAX_ATTACHMENTS,
+        );
+
+        if (data.attachments.length + accepted.length > MAX_ATTACHMENTS) {
+            toast.error(`You can upload up to ${MAX_ATTACHMENTS} files.`);
+        }
+
+        setData('attachments', nextAttachments);
+        e.target.value = '';
+    }
+
+    function removeAttachment(index: number) {
+        setData(
+            'attachments',
+            data.attachments.filter((_, i) => i !== index),
+        );
+    }
+
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        setConfirmSubmitOpen(true);
     }
 
     const [canLoan, setCanLoan] = useState(true);
@@ -272,6 +339,91 @@ export default function Create() {
                                             value={data.transaction_date}
                                             className="w-full rounded-lg border border-black/10 bg-[#f5f5f5] px-4 py-2.5 text-sm outline-none"
                                         />
+                                    </div>
+
+                                    <div>
+                                        <div className="mb-2 flex items-center justify-between gap-3">
+                                            <label className="block text-sm font-medium text-black/70">
+                                                Supporting Files
+                                            </label>
+                                            <span className="text-xs text-black/40">
+                                                {data.attachments.length}/
+                                                {MAX_ATTACHMENTS}
+                                            </span>
+                                        </div>
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            multiple
+                                            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                                            className="hidden"
+                                            onChange={handleAttachmentChange}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                fileInputRef.current?.click()
+                                            }
+                                            disabled={
+                                                data.attachments.length >=
+                                                MAX_ATTACHMENTS
+                                            }
+                                            className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-black/15 bg-[#f8f8f8] px-4 py-4 text-sm font-medium text-black/60 transition hover:border-black/30 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            <Paperclip className="size-4" />
+                                            Upload images or PDFs
+                                        </button>
+                                        <p className="mt-1 text-xs text-black/40">
+                                            Up to 10 files, 5 MB each.
+                                        </p>
+                                        {(errors as any).attachments && (
+                                            <p className="mt-1 text-xs text-red-500">
+                                                {(errors as any).attachments}
+                                            </p>
+                                        )}
+
+                                        {data.attachments.length > 0 && (
+                                            <div className="mt-3 space-y-2">
+                                                {data.attachments.map(
+                                                    (file, index) => (
+                                                        <div
+                                                            key={`${file.name}-${file.size}-${index}`}
+                                                            className="flex items-center justify-between gap-3 rounded-lg border border-black/10 bg-white px-3 py-2"
+                                                        >
+                                                            <div className="flex min-w-0 items-center gap-2">
+                                                                <FileText className="size-4 shrink-0 text-black/40" />
+                                                                <div className="min-w-0">
+                                                                    <p className="truncate text-sm font-medium">
+                                                                        {
+                                                                            file.name
+                                                                        }
+                                                                    </p>
+                                                                    <p className="text-xs text-black/40">
+                                                                        {Math.ceil(
+                                                                            file.size /
+                                                                                1024,
+                                                                        )}{' '}
+                                                                        KB
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    removeAttachment(
+                                                                        index,
+                                                                    )
+                                                                }
+                                                                className="flex size-8 shrink-0 items-center justify-center rounded-full text-black/40 transition hover:bg-black/5 hover:text-black"
+                                                                aria-label={`Remove ${file.name}`}
+                                                            >
+                                                                <X className="size-4" />
+                                                            </button>
+                                                        </div>
+                                                    ),
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -639,6 +791,15 @@ export default function Create() {
                   
                 </div>
             )}
+            <ConfirmActionDialog
+                open={confirmSubmitOpen}
+                title="Submit loan application?"
+                description="Your loan application and generated payment schedule will be sent to admin for review."
+                confirmLabel="Submit application"
+                processing={processing}
+                onConfirm={submitApplication}
+                onOpenChange={setConfirmSubmitOpen}
+            />
         </div>
     );
 }
