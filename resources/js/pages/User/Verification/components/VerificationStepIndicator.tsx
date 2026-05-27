@@ -13,6 +13,7 @@ export default function VerificationStepIndicator({ current } : any) {
             {STEPS.map((step, i) => {
                 const done = current > step.id;
                 const active = current === step.id;
+
                 return (
                     <div key={step.id} className="flex items-center">
                         <div className="flex flex-col items-center gap-2">

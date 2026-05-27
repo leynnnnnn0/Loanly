@@ -1,26 +1,26 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head,Link } from '@inertiajs/react';
 import {
-    BarChart,
-    Bar,
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell,
-    Legend,
+Bar,
+BarChart,
+CartesianGrid,
+Cell,
+Legend,
+Line,
+LineChart,
+Pie,
+PieChart,
+ResponsiveContainer,
+Tooltip,
+XAxis,
+YAxis,
 } from 'recharts';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+Table,
+TableBody,
+TableCell,
+TableHead,
+TableHeader,
+TableRow,
 } from '@/components/ui/table';
 
 const peso = (n) =>
@@ -31,8 +31,12 @@ const peso = (n) =>
     }).format(n);
 
 const fmtMonth = (ym) => {
-    if (!ym) return '';
+    if (!ym) {
+return '';
+}
+
     const [y, m] = ym.split('-');
+
     return new Date(y, m - 1).toLocaleString('en-PH', {
         month: 'short',
         year: '2-digit',
@@ -59,6 +63,7 @@ function StatusBadge({ status }) {
         overdue: 'bg-red-100 text-red-800',
         for_approval: 'bg-amber-100 text-amber-800',
     };
+
     return (
         <span
             className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${map[status] ?? 'bg-gray-100 text-gray-700'}`}
@@ -71,6 +76,7 @@ function StatusBadge({ status }) {
 // Pastel card — alternates blue (#c3d9eb / --secondary) and green (#b4e4a1 / --primary)
 function StatCard({ title, value, sub, icon, variant = 'blue' }) {
     const bg = variant === 'green' ? 'bg-[#b4e4a1]' : 'bg-[#c3d9eb]';
+
     return (
         <div className={`${bg} rounded-2xl p-5`}>
             <div className="flex items-center justify-between">
@@ -103,14 +109,17 @@ export default function Index({
             };
         });
         monthlyCollections.forEach((r) => {
-            if (map[r.month]) map[r.month].collected = r.total_collected;
-            else
-                map[r.month] = {
+            if (map[r.month]) {
+map[r.month].collected = r.total_collected;
+} else {
+map[r.month] = {
                     month: r.month,
                     disbursed: 0,
                     collected: r.total_collected,
                 };
+}
         });
+
         return Object.values(map)
             .sort((a, b) => a.month.localeCompare(b.month))
             .map((r) => ({ ...r, label: fmtMonth(r.month) }));

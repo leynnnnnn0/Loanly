@@ -1,33 +1,22 @@
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head,Link } from '@inertiajs/react';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    FileText,
-    Landmark,
-    Clock,
-    CheckCircle2,
-    XCircle,
-    AlertCircle,
-    Eye,
-    Search,
-    PhilippinePeso,
+AlertCircle,
+CheckCircle2,
+Clock,
+Eye,
+FileText,
+Landmark,
+PhilippinePeso
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+Table,
+TableBody,
+TableCell,
+TableHead,
+TableHeader,
+TableRow,
+} from '@/components/ui/table';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Loan {
@@ -90,6 +79,7 @@ const statusConfig: Record<string, { label: string; class: string }> = {
 
 function StatusBadge({ status }: { status: string }) {
     const cfg = statusConfig[status] ?? statusConfig.pending;
+
     return (
         <span
             className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${cfg.class}`}
@@ -111,6 +101,7 @@ function StatCard({
     icon: React.ElementType;
     }) {
      const bg = variant === 'green' ? 'bg-[#b4e4a1]' : 'bg-[#c3d9eb]';
+
     return (
         <div className={`${bg} rounded-2xl border-0 p-2 shadow-sm`}>
             <div className="flex flex-col gap-4 p-5">
@@ -132,13 +123,6 @@ const formatCurrency = (value: number) =>
         minimumFractionDigits: 2,
     }).format(value);
 
-const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    });
-
 // ─── Progress Bar ─────────────────────────────────────────────────────────────
 function PaymentProgress({
     totalPaid,
@@ -149,6 +133,7 @@ function PaymentProgress({
 }) {
     const pct =
         totalPayable > 0 ? Math.min(100, (totalPaid / totalPayable) * 100) : 0;
+
     return (
         <div className="flex min-w-[100px] items-center gap-2">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
@@ -165,27 +150,12 @@ function PaymentProgress({
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function LoanIndex({ loans, filters }: Props) {
-    const [search, setSearch] = useState(filters.search ?? '');
-    const [status, setStatus] = useState(filters.status ?? 'all');
-
-    const applyFilters = () => {
-        const params = new URLSearchParams();
-        if (search) params.set('search', search);
-        if (status && status !== 'all') params.set('status', status);
-        window.location.href = `/admin/loans?${params.toString()}`;
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') applyFilters();
-    };
-
+export default function LoanIndex({ loans }: Props) {
     // Derive quick stats from current page data (ideally pass from controller)
     const totalLoans = loans.total;
     const pending = loans.data.filter((l) => l.status === 'pending').length;
     const active = loans.data.filter((l) => l.status === 'active').length;
     const completed = loans.data.filter((l) => l.status === 'completed').length;
-    const voided = loans.data.filter((l) => l.status === 'voided').length;
 
     return (
         <>
@@ -223,35 +193,6 @@ export default function LoanIndex({ loans, filters }: Props) {
                         icon={CheckCircle2}
                     />
                 </div>
-
-                {/* Filters */}
-                {/* <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <div className="relative flex-1">
-                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            placeholder="Search by contract number or borrower name..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            className="pl-9"
-                        />
-                    </div>
-                    <Select value={status} onValueChange={setStatus}>
-                        <SelectTrigger className="w-full sm:w-44">
-                            <SelectValue placeholder="All statuses" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="voided">Voided</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Button onClick={applyFilters} className="w-full sm:w-auto">
-                        Search
-                    </Button>
-                </div> */}
 
                 {/* Table */}
                 <div className="overflow-hidden rounded-lg border-0 shadow-sm">

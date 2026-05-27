@@ -1,14 +1,14 @@
+import { Trash2,UserPlus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, Trash2, Users } from 'lucide-react';
 
 const RELATIONSHIPS = [
     'Parent',
@@ -44,18 +44,12 @@ export default function ReferencesStep({ data, onChange, onNext, onBack }) {
     const addRef = () => onChange([...refs, emptyRef()]);
 
     const removeRef = (index) => {
-        if (refs.length <= 3) return;
+        if (refs.length <= 3) {
+return;
+}
+
         onChange(refs.filter((_, i) => i !== index));
     };
-
-    const isRefComplete = (r) =>
-        r.first_name &&
-        r.last_name &&
-        r.phone_number &&
-        r.address &&
-        r.relationship;
-
-    // const isValid = refs.length >= 3 && refs.slice(0, 3).every(isRefComplete);
 
     const isValid = true;
 

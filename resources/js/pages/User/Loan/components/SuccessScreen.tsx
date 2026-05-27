@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { CheckCircle2 } from 'lucide-react';
 import { Link } from '@inertiajs/react';
+import { CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function SuccessScreen({ contractNumber }) {
     return (

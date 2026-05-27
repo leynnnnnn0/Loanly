@@ -1,62 +1,62 @@
+import { Link,router,useForm } from '@inertiajs/react';
+import {
+AlertTriangle,
+ArrowLeft,
+Ban,
+CheckCircle2,
+Clock,
+CreditCard,
+FileIcon,
+FileText,
+History,
+Hourglass,
+Info,
+Paperclip,
+PhilippinePeso,
+TrendingUp,
+X,
+XCircle,
+ZoomIn
+} from 'lucide-react';
+import { useRef,useState } from 'react';
+import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
+import {
+Accordion,
+AccordionContent,
+AccordionItem,
+AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Alert,AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
+import {
+Dialog,
+DialogContent,
+DialogDescription,
+DialogFooter,
+DialogHeader,
+DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+Table,
+TableBody,
+TableCell,
+TableHead,
+TableHeader,
+TableRow,
 } from '@/components/ui/table';
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Link, router, useForm, usePage } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    Ban,
-    CheckCircle2,
-    Clock,
-    CreditCard,
-    PhilippinePeso,
-    FileText,
-    History,
-    AlertTriangle,
-    TrendingUp,
-    XCircle,
-    Info,
-    Hourglass,
-    Paperclip,
-    X,
-    ImageIcon,
-    ZoomIn,
-} from 'lucide-react';
-import { useState, useRef } from 'react';
-import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
 function storageUrl(path: string): string {
     return `/storage/${path}`;
 }
@@ -170,6 +170,7 @@ function StatusBadge({ status }: { status: string }) {
         rejected: 'Rejected',
     };
     const key = status.toLowerCase();
+
     return (
         <span
             className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${map[key] ?? map.pending}`}
@@ -225,13 +226,16 @@ function AttachmentPreview({
     files: File[];
     onRemove: (index: number) => void;
 }) {
-    if (files.length === 0) return null;
+    if (files.length === 0) {
+return null;
+}
 
     return (
         <div className="grid grid-cols-3 gap-2">
             {files.map((file, i) => {
                 const url = URL.createObjectURL(file);
                 const isImage = file.type.startsWith('image/');
+
                 return (
                     <div
                         key={i}
@@ -288,7 +292,7 @@ function PaymentModal({
     const [attachments, setAttachments] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, processing, errors, reset } = useForm({
         amount_paid: '',
         payment_method: 'cash',
         payment_date: today,
@@ -302,6 +306,7 @@ function PaymentModal({
         const valid = selected.filter((f) => f.size <= 5 * 1024 * 1024);
         setAttachments((prev) => {
             const merged = [...prev, ...valid];
+
             return merged.slice(0, 10); // cap at 10
         });
         // Reset input so the same file can be re-added after removal
@@ -314,7 +319,9 @@ function PaymentModal({
 
    
 function handleSubmit() {
-    if (!schedule) return;
+    if (!schedule) {
+return;
+}
 
     const formData = new FormData();
     formData.append('amount_paid', data.amount_paid);
@@ -809,7 +816,9 @@ export default function Show({ loan }: { loan: Loan }) {
     const [isVoidOpen, setIsVoidOpen] = useState(false);
     const [selected, setSelected] = useState<PaymentSchedule | null>(null);
 
-    if (loan.status === 'pending') return <PendingState loan={loan} />;
+    if (loan.status === 'pending') {
+return <PendingState loan={loan} />;
+}
 
     const schedules = loan.payment_schedules ?? [];
 
@@ -854,7 +863,10 @@ export default function Show({ loan }: { loan: Loan }) {
     }
 
     function openPayment(s: PaymentSchedule) {
-        if (s.status === 'paid' || s.status == 'rejected') return;
+        if (s.status === 'paid' || s.status == 'rejected') {
+return;
+}
+
         setSelected(s);
         setIsPaymentOpen(true);
     }
@@ -1497,7 +1509,9 @@ interface PaymentAttachment {
 function AttachmentGrid({ attachments }: { attachments: PaymentAttachment[] }) {
     const [lightbox, setLightbox] = useState<string | null>(null);
 
-    if (!attachments || attachments.length === 0) return null;
+    if (!attachments || attachments.length === 0) {
+return null;
+}
 
     return (
         <>
@@ -1510,6 +1524,7 @@ function AttachmentGrid({ attachments }: { attachments: PaymentAttachment[] }) {
                     {attachments.map((att) => {
                         const url = storageUrl(att.image_path);
                         const pdf = isPdf(att.image_path);
+
                         return (
                             <div
                                 key={att.id}

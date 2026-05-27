@@ -1,6 +1,6 @@
+import { Link } from '@inertiajs/react';
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
 
 export default function VerificationSuccess() {
     return (

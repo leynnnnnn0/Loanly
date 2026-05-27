@@ -1,51 +1,50 @@
-import Navbar from '@/components/Navbar';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Link,useForm } from '@inertiajs/react';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Link, useForm } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    Ban,
-    CheckCircle,
-    Clock,
-    CreditCard,
-    PhilippinePeso,
-    FileText,
-    History,
-    AlertTriangle,
-    TrendingUp,
-    XCircle,
-    Check,
-    X,
-    Gift,
-    ShieldCheck,
-    Paperclip,
-    ZoomIn,
-    FileIcon,
+AlertTriangle,
+ArrowLeft,
+Ban,
+Check,
+CheckCircle,
+Clock,
+CreditCard,
+FileIcon,
+FileText,
+Gift,
+History,
+Paperclip,
+PhilippinePeso,
+ShieldCheck,
+TrendingUp,
+X,
+XCircle,
+ZoomIn,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Alert,AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
+import {
+Dialog,
+DialogContent,
+DialogDescription,
+DialogFooter,
+DialogHeader,
+DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import {
+Table,
+TableBody,
+TableCell,
+TableHead,
+TableHeader,
+TableRow,
+} from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PaymentAttachment {
@@ -169,6 +168,7 @@ function StatusBadge({ status }: { status: string }) {
         rejected: 'Rejected',
     };
     const key = status.toLowerCase();
+
     return (
         <span
             className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${map[key] ?? map.pending}`}
@@ -220,7 +220,9 @@ function SectionCard({
 function AttachmentGrid({ attachments }: { attachments: PaymentAttachment[] }) {
     const [lightbox, setLightbox] = useState<string | null>(null);
 
-    if (!attachments || attachments.length === 0) return null;
+    if (!attachments || attachments.length === 0) {
+return null;
+}
 
     return (
         <>
@@ -233,6 +235,7 @@ function AttachmentGrid({ attachments }: { attachments: PaymentAttachment[] }) {
                     {attachments.map((att) => {
                         const url = storageUrl(att.image_path);
                         const pdf = isPdf(att.image_path);
+
                         return (
                             <div
                                 key={att.id}
@@ -309,7 +312,7 @@ function ApproveLoanModal({
         post(`/admin/loans/${loan.id}/approve`,
             {
                 onSuccess: () => {
-                    onClose;
+                    onClose();
                     toast.success("Loan Approved Successfully!");
 
                 },
@@ -320,6 +323,7 @@ function ApproveLoanModal({
              }
         );
     }
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[440px]">
@@ -403,6 +407,7 @@ function RejectLoanModal({
             },
         });
     }
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[440px]">
@@ -470,10 +475,13 @@ function ApprovePaymentModal({
 }) {
     const { post, processing } = useForm({});
     function handleApprove() {
-        if (!history) return;
+        if (!history) {
+return;
+}
+
         post(`/admin/payments/${history.id}/approve`, {
             onSuccess: () => {
-                onClose;
+                onClose();
                 toast.success('Payment Approved Successfully!');
             },
             onError: () => {
@@ -481,6 +489,7 @@ function ApprovePaymentModal({
             },
         });
     }
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
@@ -592,11 +601,14 @@ function RejectPaymentModal({
     onClose: () => void;
     history: (PaymentHistory & { schedule_number: number }) | null;
 }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, reset } = useForm({
         remarks: '',
     });
     function handleReject() {
-        if (!history) return;
+        if (!history) {
+return;
+}
+
         post(`/admin/payments/${history.id}/reject`, {
             onSuccess: () => {
                 reset();
@@ -608,6 +620,7 @@ function RejectPaymentModal({
             }
         });
     }
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[440px]">
@@ -679,7 +692,10 @@ function RebateModal({
         rebate_remarks: schedule?.rebate_remarks ?? '',
     });
     function handleSubmit() {
-        if (!schedule) return;
+        if (!schedule) {
+return;
+}
+
         const url = `/admin/loans/schedules/${schedule.id}/rebate`;
         const opts = {
             onSuccess: () => {
@@ -687,8 +703,14 @@ function RebateModal({
                 onClose();
             },
         };
-        isEdit ? put(url, opts) : post(url, opts);
+
+        if (isEdit) {
+            put(url, opts);
+        } else {
+            post(url, opts);
+        }
     }
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[440px]">
@@ -800,7 +822,10 @@ function PenaltyModal({
         remarks: '',
     });
     function handleSubmit() {
-        if (!schedule) return;
+        if (!schedule) {
+return;
+}
+
         const url = `/admin/loans/schedules/${schedule.id}/penalty`;
         const opts = {
             onSuccess: () => {
@@ -808,8 +833,14 @@ function PenaltyModal({
                 onClose();
             },
         };
-        isEdit ? put(url, opts) : post(url, opts);
+
+        if (isEdit) {
+            put(url, opts);
+        } else {
+            post(url, opts);
+        }
     }
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[440px]">
@@ -965,10 +996,6 @@ export default function AdminLoanShow({ loan }: { loan: Loan }) {
     function openRejectPayment(h: HistoryWithMeta) {
         setSelectedHistory(h);
         setRejectPayOpen(true);
-    }
-    function openRebate(s: PaymentSchedule) {
-        setSelectedSchedule(s);
-        setRebateOpen(true);
     }
     function openPenalty(s: PaymentSchedule) {
         setSelectedSchedule(s);
@@ -1217,6 +1244,7 @@ export default function AdminLoanShow({ loan }: { loan: Loan }) {
                                         const isPaid = s.status === 'paid';
                                         const isOverdue =
                                             !isPaid && today > s.due_date;
+
                                         return (
                                             <TableRow
                                                 key={s.id}

@@ -123,6 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'lender_name' => 'Loanly'
+    'lender_name' => 'Loanly',
 
 ];

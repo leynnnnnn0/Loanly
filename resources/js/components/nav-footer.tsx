@@ -1,10 +1,10 @@
 import type { ComponentPropsWithoutRef } from 'react';
 import {
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+SidebarGroup,
+SidebarGroupContent,
+SidebarMenu,
+SidebarMenuButton,
+SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { toUrl } from '@/lib/utils';
 import type { NavItem } from '@/types';

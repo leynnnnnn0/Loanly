@@ -1,15 +1,15 @@
+import { ShieldCheck,Upload } from 'lucide-react';
 import { useRef } from 'react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
 } from '@/components/ui/select';
-import { Upload, ShieldCheck, ShieldAlert } from 'lucide-react';
 
 const ID_TYPES = [
     "Driver's License",
@@ -31,6 +31,7 @@ export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
 
     const handleFile = (e) => {
         const file = e.target.files?.[0];
+
         if (file) {
             onChange({
                 ...data,

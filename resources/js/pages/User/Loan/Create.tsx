@@ -1,17 +1,16 @@
-import Navbar from '@/components/Navbar';
-import { useState, useMemo, useEffect } from 'react';
-import { useForm, usePage, Link } from '@inertiajs/react';
+import { Link,useForm,usePage } from '@inertiajs/react';
 import {
-    ChevronLeft,
-    ChevronRight,
-    PhilippinePeso,
-    Calendar,
-    Info,
+Calendar,
+ChevronLeft,
+ChevronRight,
+Info,
+PhilippinePeso,
 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { useEffect,useMemo,useState } from 'react';
 import { toast } from 'sonner';
 import LowCreditBlock from '@/components/LowCreditBlock';
-import CreditScoreBadge from '@/components/CreditScoreBadge';
+import Navbar from '@/components/Navbar';
+import { Separator } from '@/components/ui/separator';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface ScheduleRow {
@@ -31,8 +30,13 @@ const fmt = (v: number) =>
 
 function addPeriod(date: Date, n: number, unit: 'weeks' | 'months'): Date {
     const d = new Date(date);
-    if (unit === 'months') d.setMonth(d.getMonth() + n);
-    else d.setDate(d.getDate() + n * 7);
+
+    if (unit === 'months') {
+d.setMonth(d.getMonth() + n);
+} else {
+d.setDate(d.getDate() + n * 7);
+}
+
     return d;
 }
 
@@ -63,7 +67,9 @@ function computeSchedule(
     frequency: 'monthly' | 'weekly',
     transactionDate: string,
 ): ScheduleRow[] {
-    if (!amount || !loanDurationMonths || !transactionDate) return [];
+    if (!amount || !loanDurationMonths || !transactionDate) {
+return [];
+}
 
     const terms = totalTerms(loanDurationMonths, frequency);
     const start = new Date(transactionDate);
@@ -88,7 +94,7 @@ function computeSchedule(
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Create() {
-    const { borrower, maxBorrow, availableToBorrow } = usePage().props as any;
+    const { borrower, availableToBorrow } = usePage().props as any;
 
     const { data, setData, post, processing, errors } = useForm({
         amount: '',

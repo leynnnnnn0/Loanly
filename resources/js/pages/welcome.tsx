@@ -1,10 +1,10 @@
+import { router } from '@inertiajs/react';
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
+Accordion,
+AccordionContent,
+AccordionItem,
+AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Head, router } from '@inertiajs/react';
 import Chart from '../../images/dashboard.png';
 import Financial from '../../images/financial.png';
 import Graph from '../../images/graph.png';

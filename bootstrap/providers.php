@@ -7,5 +7,5 @@ use Illuminate\Broadcasting\BroadcastServiceProvider;
 return [
     AppServiceProvider::class,
     FortifyServiceProvider::class,
-    BroadcastServiceProvider::class
+    BroadcastServiceProvider::class,
 ];

@@ -27,8 +27,7 @@ class BorrowerController extends Controller
                     ->orWhere('phone_number', 'like', "%{$search}%")
                     ->orWhereHas(
                         'identification',
-                        fn($q) =>
-                        $q->where('id_number', 'like', "%{$search}%")
+                        fn ($q) => $q->where('id_number', 'like', "%{$search}%")
                     );
             });
         }
@@ -45,16 +44,16 @@ class BorrowerController extends Controller
 
         // Stat counts (across all borrowers, not filtered)
         $stats = [
-            'total'    => Borrower::count(),
-            'pending'  => Borrower::where('account_status', 'pending')->count(),
+            'total' => Borrower::count(),
+            'pending' => Borrower::where('account_status', 'pending')->count(),
             'verified' => Borrower::where('account_status', 'verified')->count(),
             'rejected' => Borrower::where('account_status', 'rejected')->count(),
         ];
 
         return Inertia::render('Admin/Borrower/Index', [
             'borrowers' => $borrowers,
-            'filters'   => $request->only('search', 'status'),
-            'stats'     => $stats,
+            'filters' => $request->only('search', 'status'),
+            'stats' => $stats,
         ]);
     }
 
@@ -69,7 +68,6 @@ class BorrowerController extends Controller
             'references',
             'loans:id,borrower_id,contract_number,amount,status,transaction_date',
         ]);
-
 
         return Inertia::render('Admin/Borrower/Show', [
             'borrower' => $borrower,
@@ -86,7 +84,6 @@ class BorrowerController extends Controller
 
         $borrower->update(['account_status' => 'verified']);
 
-
         ReviewVerficationEvent::dispatch($borrower->fresh(['user']));
 
         return back()->with('success', 'Borrower verified successfully.');
@@ -100,16 +97,14 @@ class BorrowerController extends Controller
             'Cannot reject an already verified borrower.'
         );
 
-
         $validated = $request->validate([
             'rejection_reason' => ['required', 'string', 'max:500'],
         ]);
 
         $borrower->update([
-            'account_status'   => 'rejected',
+            'account_status' => 'rejected',
             'rejection_reason' => $validated['rejection_reason'],
         ]);
-
 
         ReviewVerficationEvent::dispatch($borrower->fresh(['user']));
 

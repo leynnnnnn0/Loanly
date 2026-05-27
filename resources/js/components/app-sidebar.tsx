@@ -1,17 +1,17 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, PhilippinePeso, FolderGit2, Group, LayoutGrid, PersonStanding, Wallet } from 'lucide-react';
+import { LayoutGrid,PersonStanding,PhilippinePeso,Wallet } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+Sidebar,
+SidebarContent,
+SidebarFooter,
+SidebarHeader,
+SidebarMenu,
+SidebarMenuButton,
+SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
 

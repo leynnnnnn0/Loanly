@@ -1,7 +1,7 @@
+import { MapPin,Phone,User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { User, Phone, MapPin } from 'lucide-react';
 
 export default function PersonalDetailsStep({ data, onChange, onNext } : any) {
     const handleChange = (field) => (e) =>
@@ -11,6 +11,7 @@ export default function PersonalDetailsStep({ data, onChange, onNext } : any) {
     //     data.first_name && data.last_name && data.phone_number && data.address;
 
     const isValid = true;
+
     return (
         <div className="space-y-6">
             <div>

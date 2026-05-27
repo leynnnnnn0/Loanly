@@ -40,6 +40,7 @@ class SendLoanDueReminders extends Command
 
             if ($schedules->isEmpty()) {
                 $this->info("No schedules due in {$days} day(s). Skipping.");
+
                 continue;
             }
 
@@ -47,10 +48,11 @@ class SendLoanDueReminders extends Command
 
             foreach ($schedules as $schedule) {
                 $borrower = $schedule->loan?->borrower;
-                $user     = $borrower?->user;
+                $user = $borrower?->user;
 
-                if (!$user) {
+                if (! $user) {
                     $this->warn("Schedule #{$schedule->id} has no user — skipped.");
+
                     continue;
                 }
 

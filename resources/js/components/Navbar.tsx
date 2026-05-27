@@ -1,18 +1,17 @@
-import MainLogo from '../../../public/images/mainLogo.png';
-import {
-    Home,
-    Wallet,
-    Settings,
-    BellIcon,
-    AlertCircle,
-    ShieldCheck,
-    ShieldX,
-    LogOut,
-} from 'lucide-react';
-import { Link, router, usePage } from '@inertiajs/react';
-import { LucideIcon } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Link,router,usePage } from '@inertiajs/react';
 import { useEcho } from '@laravel/echo-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+AlertCircle,
+BellIcon,
+Home,
+LogOut,
+Settings,
+ShieldX,
+Wallet
+} from 'lucide-react';
+import { useEffect,useState } from 'react';
+import MainLogo from '../../../public/images/mainLogo.png';
 
 type BorrowerStatus = 'pending' | 'verified' | 'rejected' | 'not_verified';
 type UnverifiedStatus = 'unverified' | 'pending' | 'rejected' | 'not_verified';
@@ -138,8 +137,17 @@ function NotificationBell({ userId }: { userId: number }) {
 
 function ClientOnly({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
-    if (!mounted) return null;
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => setMounted(true), 0);
+
+        return () => window.clearTimeout(timer);
+    }, []);
+
+    if (!mounted) {
+        return null;
+    }
+
     return <>{children}</>;
 }
 
@@ -162,6 +170,7 @@ export default function Navbar() {
         { logo: Wallet, href: '/user/my-loans', name: 'My Loans' },
         { logo: Settings, href: '/user/profile', name: 'My Profile' },
     ];
+
     return (
         <div className="sticky top-0 z-50">
             <nav className="flex items-center justify-between bg-[#FCFCFC] py-5">
@@ -170,6 +179,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-5">
                         {routes.map((item) => {
                             const isActive = url.startsWith(item.href);
+
                             return (
                                 <Link
                                     key={item.href}

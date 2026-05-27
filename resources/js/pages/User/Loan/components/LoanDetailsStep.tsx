@@ -1,14 +1,14 @@
+import { Info,PhilippinePeso } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
 } from '@/components/ui/select';
-import { PhilippinePeso, Info } from 'lucide-react';
 
 const INTEREST_TYPES = ['percentage', 'flat'];
 const INTEREST_PERIODS = ['monthly', 'annually', 'per_term'];

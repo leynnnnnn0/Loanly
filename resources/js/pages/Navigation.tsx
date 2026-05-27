@@ -1,7 +1,7 @@
-import { login } from '@/routes';
-import { Link, usePage } from '@inertiajs/react';
-import { Menu, X } from 'lucide-react';
+import { Link,usePage } from '@inertiajs/react';
+import { Menu,X } from 'lucide-react';
 import { useState } from 'react';
+import { login } from '@/routes';
 import LOGO from '../../../public/images/mainLogo.png';
 
 export default function Navigation() {
@@ -18,9 +18,15 @@ export default function Navigation() {
 
     const isActive = (href) => {
         // Exact match for home page
-        if (href === '/' && url === '/') return true;
+        if (href === '/' && url === '/') {
+return true;
+}
+
         // For other pages, check if URL starts with the href
-        if (href !== '/' && url.startsWith(href)) return true;
+        if (href !== '/' && url.startsWith(href)) {
+return true;
+}
+
         return false;
     };
 

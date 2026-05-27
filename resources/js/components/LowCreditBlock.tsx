@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ShieldAlert, ChevronRight, CircleAlert } from 'lucide-react';
+import { ChevronRight,CircleAlert,ShieldAlert } from 'lucide-react';
 import CreditScoreBadge from './CreditScoreBadge';
 
 interface LowCreditBlockProps {

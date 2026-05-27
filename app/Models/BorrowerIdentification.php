@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use App\Concerns\HasBorrower;
+use Database\Factories\BorrowerIdentificationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BorrowerIdentification extends Model
 {
-    /** @use HasFactory<\Database\Factories\BorrowerIdentificationFactory> */
-    use HasFactory, HasBorrower;
-
+    /** @use HasFactory<BorrowerIdentificationFactory> */
+    use HasBorrower, HasFactory;
 
     protected $fillable = [
         'borrower_id',
@@ -20,5 +20,4 @@ class BorrowerIdentification extends Model
         'issue_date',
         'expiry_date',
     ];
-
 }

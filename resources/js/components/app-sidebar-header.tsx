@@ -1,10 +1,10 @@
+import { usePage } from '@inertiajs/react';
 import { useEcho } from '@laravel/echo-react';
+import { Bell } from 'lucide-react';
+import { useEffect,useState } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
-import { Bell } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { usePage } from '@inertiajs/react';
 
 function NotificationBell({ userId }: { userId: number }) {
     const [notifications, setNotifications] = useState<any[]>([]);
@@ -81,8 +81,17 @@ function NotificationBell({ userId }: { userId: number }) {
 
 function ClientOnly({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
-    if (!mounted) return null;
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => setMounted(true), 0);
+
+        return () => window.clearTimeout(timer);
+    }, []);
+
+    if (!mounted) {
+        return null;
+    }
+
     return <>{children}</>;
 }
 

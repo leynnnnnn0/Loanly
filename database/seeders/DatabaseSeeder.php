@@ -19,14 +19,14 @@ class DatabaseSeeder extends Seeder
             'username' => 'admin',
             'email' => 'admin@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         User::create([
             'username' => 'borrower',
             'email' => 'borrower@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'borrower'
+            'role' => 'borrower',
         ]);
     }
 }

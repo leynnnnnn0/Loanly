@@ -1,13 +1,12 @@
+import {
+CalendarDays,
+CheckCircle2,
+ChevronRight,
+ShieldCheck,
+Users
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import {
-    CalendarDays,
-    Globe,
-    ShieldCheck,
-    Users,
-    CheckCircle2,
-    ChevronRight,
-} from 'lucide-react';
 
 function ReviewSection({
     icon: Icon,

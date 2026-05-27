@@ -5,14 +5,12 @@ namespace App\Listeners;
 use App\Events\ReviewVerficationEvent;
 use App\Notifications\ReviewVerificationRequestNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class ReviewVerificationRequestListener implements ShouldQueue
 {
-
     public function handle(ReviewVerficationEvent $event): void
     {
-         $user = $event->borrower->user;
-         $user->notify(new ReviewVerificationRequestNotification($event->borrower));
+        $user = $event->borrower->user;
+        $user->notify(new ReviewVerificationRequestNotification($event->borrower));
     }
 }

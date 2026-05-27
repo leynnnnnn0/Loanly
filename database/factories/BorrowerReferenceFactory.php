@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Borrower;
 use App\Models\BorrowerReference;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +19,12 @@ class BorrowerReferenceFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'borrower_id' => Borrower::factory(),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'phone_number' => fake()->numerify('09#########'),
+            'address' => fake()->address(),
+            'relationship' => fake()->randomElement(['parent', 'sibling', 'friend', 'spouse']),
         ];
     }
 }

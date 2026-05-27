@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Models\Borrower;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -45,11 +44,12 @@ class ReviewVerificationRequestNotification extends Notification
     public function toBroadcast(object $notifiable)
     {
         $accountStatus = $this->borrower->account_status;
-        $message = $accountStatus == 'verified' ? "Your account is now verified" : "You account verification request is declined";
-        $description = $accountStatus == 'verified' ? "You can now request to get a loan up to 20,000" : "Your application is rejected. Go to profile page to see the reason";
+        $message = $accountStatus == 'verified' ? 'Your account is now verified' : 'You account verification request is declined';
+        $description = $accountStatus == 'verified' ? 'You can now request to get a loan up to 20,000' : 'Your application is rejected. Go to profile page to see the reason';
+
         return new BroadcastMessage([
             'message' => $message,
-            'description' => $description
+            'description' => $description,
         ]);
     }
 

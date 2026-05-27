@@ -6,8 +6,8 @@ use App\Mail\SendVerificationMail;
 use App\Models\Borrower;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Notification;
 
 class SendVerificationRequestNotification extends Notification implements ShouldBroadcast
 {

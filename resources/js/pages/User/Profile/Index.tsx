@@ -1,27 +1,24 @@
-import { Head, usePage } from '@inertiajs/react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Head } from '@inertiajs/react';
 import {
-    User,
-    Phone,
-    MapPin,
-    Globe,
-    Calendar,
-    ShieldCheck,
-    Users,
-    Hash,
-    Clock,
-    CheckCircle2,
-    XCircle,
-    AlertCircle,
-    ExternalLink,
-    CreditCard,
-    FileText,
-    VerifiedIcon,
+AlertCircle,
+Calendar,
+CheckCircle2,
+Clock,
+ExternalLink,
+FileText,
+Globe,
+Hash,
+MapPin,
+Phone,
+ShieldCheck,
+User,
+Users,
+XCircle
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Tabs,TabsContent,TabsList,TabsTrigger } from '@/components/ui/tabs';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Borrower {
@@ -422,7 +419,7 @@ export default function Index({ borrower }: Props) {
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                        {borrower.references.map((ref, i) => (
+                                        {borrower.references.map((ref) => (
                                             <div
                                                 key={ref.id}
                                                 className="flex flex-col gap-3 rounded-xl border bg-muted/20 p-4 transition-colors hover:bg-muted/40"

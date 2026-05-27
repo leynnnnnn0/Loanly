@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
 
         if ($request->user()) {
             $borrowerStatus = Borrower::where('user_id', $request->user()->id)
-                ->value('account_status'); 
+                ->value('account_status');
         }
 
         return [
@@ -48,7 +48,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
-                'borrower_status' => $borrowerStatus, 
+                'borrower_status' => $borrowerStatus,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

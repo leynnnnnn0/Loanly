@@ -1,25 +1,15 @@
-import { Head, router } from '@inertiajs/react';
+import { Head,router } from '@inertiajs/react';
 import { useState } from 'react';
 import {
-    AreaChart,
-    Area,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    Legend,
+Area,
+AreaChart,
+CartesianGrid,
+Legend,
+ResponsiveContainer,
+Tooltip,
+XAxis,
+YAxis
 } from 'recharts';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const peso = (n) =>
@@ -32,16 +22,10 @@ const peso = (n) =>
 const fmtDay = (d) =>
     new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
 
-const OVERDUE_COLORS = {
-    '1–7 days': '#b4e4a1',
-    '8–30 days': '#EF9F27',
-    '31–90 days': '#E24B4A',
-    '90+ days': '#7c1c1c',
-};
-
 // ── Stat Card ─────────────────────────────────────────────────────────────────
 function StatCard({ title, value, sub, icon, variant = 'blue' }) {
     const bg = variant === 'green' ? 'bg-[#b4e4a1]' : 'bg-[#c3d9eb]';
+
     return (
         <div className={`${bg} rounded-2xl p-5`}>
             <div className="flex items-center justify-between">
@@ -83,9 +67,6 @@ export default function Index({
     filters,
     kpis,
     dailySeries,
-    expectedTimeline,
-    overdueBreakdown,
-    overdueLoans,
 }) {
     const [from, setFrom] = useState(filters.from);
     const [to, setTo] = useState(filters.to);
@@ -94,39 +75,6 @@ export default function Index({
         router.get(
             '/sales',
             { from, to },
-            { preserveState: true },
-        );
-    }
-
-    // Quick-range presets
-    function preset(days) {
-        const end = new Date();
-        const start = new Date();
-        start.setDate(end.getDate() - days);
-        const fmt = (d) => d.toISOString().slice(0, 10);
-        setFrom(fmt(start));
-        setTo(fmt(end));
-        router.get(
-            'sales',
-            { from: fmt(start), to: fmt(end) },
-            { preserveState: true },
-        );
-    }
-
-    function presetMonth(offset = 0) {
-        const d = new Date();
-        d.setMonth(d.getMonth() + offset);
-        const start = new Date(d.getFullYear(), d.getMonth(), 1)
-            .toISOString()
-            .slice(0, 10);
-        const end = new Date(d.getFullYear(), d.getMonth() + 1, 0)
-            .toISOString()
-            .slice(0, 10);
-        setFrom(start);
-        setTo(end);
-        router.get(
-            '/sales',
-            { from: start, to: end },
             { preserveState: true },
         );
     }

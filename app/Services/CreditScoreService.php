@@ -15,10 +15,13 @@ class CreditScoreService
     | LOAN_UTILIZATION  – compares borrowed amount vs approved limit
     | LOAN_HISTORY      – rewards completed / long-standing loans
     */
-    private const WEIGHT_PAYMENT_HISTORY  = 40;
+    private const WEIGHT_PAYMENT_HISTORY = 40;
+
     private const WEIGHT_OUTSTANDING_DEBT = 25;
+
     private const WEIGHT_LOAN_UTILIZATION = 20;
-    private const WEIGHT_LOAN_HISTORY     = 15;
+
+    private const WEIGHT_LOAN_HISTORY = 15;
 
     /*
     |--------------------------------------------------------------------------
@@ -26,9 +29,13 @@ class CreditScoreService
     |--------------------------------------------------------------------------
     */
     public const BAND_EXCELLENT = 'Excellent';  // 850 – 1 000
-    public const BAND_GOOD      = 'Good';        // 700 – 849
-    public const BAND_FAIR      = 'Fair';        // 550 – 699
-    public const BAND_POOR      = 'Poor';        // 400 – 549
+
+    public const BAND_GOOD = 'Good';        // 700 – 849
+
+    public const BAND_FAIR = 'Fair';        // 550 – 699
+
+    public const BAND_POOR = 'Poor';        // 400 – 549
+
     public const BAND_VERY_POOR = 'Very Poor';   // 300 – 399
 
     // -------------------------------------------------------------------------
@@ -72,17 +79,17 @@ class CreditScoreService
         $meta = $this->gatherMeta($loans);
 
         // ── Component scores (0 – 100 each) ──────────────────────────────────
-        $paymentHistoryScore  = $this->scorePaymentHistory($meta);
+        $paymentHistoryScore = $this->scorePaymentHistory($meta);
         $outstandingDebtScore = $this->scoreOutstandingDebt($meta);
         $loanUtilizationScore = $this->scoreLoanUtilization($meta, $loans);
-        $loanHistoryScore     = $this->scoreLoanHistory($meta);
+        $loanHistoryScore = $this->scoreLoanHistory($meta);
 
         // ── Weighted composite → scale to 300-1000 ───────────────────────────
         $weighted =
-            ($paymentHistoryScore  * self::WEIGHT_PAYMENT_HISTORY  / 100) +
+            ($paymentHistoryScore * self::WEIGHT_PAYMENT_HISTORY / 100) +
             ($outstandingDebtScore * self::WEIGHT_OUTSTANDING_DEBT / 100) +
             ($loanUtilizationScore * self::WEIGHT_LOAN_UTILIZATION / 100) +
-            ($loanHistoryScore     * self::WEIGHT_LOAN_HISTORY     / 100);
+            ($loanHistoryScore * self::WEIGHT_LOAN_HISTORY / 100);
 
         // Scale 0–100 → 300–1000
         $score = (int) round(300 + ($weighted / 100) * 700);
@@ -90,26 +97,26 @@ class CreditScoreService
 
         return [
             'score' => $score,
-            'band'  => $this->band($score),
+            'band' => $this->band($score),
             'breakdown' => [
                 'payment_history' => [
-                    'score'    => round($paymentHistoryScore, 2),
-                    'weight'   => self::WEIGHT_PAYMENT_HISTORY,
+                    'score' => round($paymentHistoryScore, 2),
+                    'weight' => self::WEIGHT_PAYMENT_HISTORY,
                     'weighted' => round($paymentHistoryScore * self::WEIGHT_PAYMENT_HISTORY / 100, 2),
                 ],
                 'outstanding_debt' => [
-                    'score'    => round($outstandingDebtScore, 2),
-                    'weight'   => self::WEIGHT_OUTSTANDING_DEBT,
+                    'score' => round($outstandingDebtScore, 2),
+                    'weight' => self::WEIGHT_OUTSTANDING_DEBT,
                     'weighted' => round($outstandingDebtScore * self::WEIGHT_OUTSTANDING_DEBT / 100, 2),
                 ],
                 'loan_utilization' => [
-                    'score'    => round($loanUtilizationScore, 2),
-                    'weight'   => self::WEIGHT_LOAN_UTILIZATION,
+                    'score' => round($loanUtilizationScore, 2),
+                    'weight' => self::WEIGHT_LOAN_UTILIZATION,
                     'weighted' => round($loanUtilizationScore * self::WEIGHT_LOAN_UTILIZATION / 100, 2),
                 ],
                 'loan_history' => [
-                    'score'    => round($loanHistoryScore, 2),
-                    'weight'   => self::WEIGHT_LOAN_HISTORY,
+                    'score' => round($loanHistoryScore, 2),
+                    'weight' => self::WEIGHT_LOAN_HISTORY,
                     'weighted' => round($loanHistoryScore * self::WEIGHT_LOAN_HISTORY / 100, 2),
                 ],
             ],
@@ -121,37 +128,37 @@ class CreditScoreService
 
     private function gatherMeta($loans): array
     {
-        $totalSchedules  = 0;
-        $onTimePayments  = 0;
-        $latePayments    = 0;
-        $missedPayments  = 0;
-        $totalAmountDue  = 0.0;
+        $totalSchedules = 0;
+        $onTimePayments = 0;
+        $latePayments = 0;
+        $missedPayments = 0;
+        $totalAmountDue = 0.0;
         $totalAmountPaid = 0.0;
-        $overdueAmount   = 0.0;
-        $completedLoans  = 0;
-        $activeLoans     = 0;
+        $overdueAmount = 0.0;
+        $completedLoans = 0;
+        $activeLoans = 0;
 
         foreach ($loans as $loan) {
             if (strtolower($loan->status ?? '') === 'completed') {
                 $completedLoans++;
-            } elseif (!$loan->is_voided) {
+            } elseif (! $loan->is_voided) {
                 $activeLoans++;
             }
 
             foreach ($loan->payment_schedules as $schedule) {
                 $totalSchedules++;
 
-                $due             = $schedule->amount_due + $schedule->penalty_amount - $schedule->rebate_amount;
+                $due = $schedule->amount_due + $schedule->penalty_amount - $schedule->rebate_amount;
                 $paidForSchedule = $schedule->payment_histories->sum('amount_paid');
 
-                $totalAmountDue  += $due;
+                $totalAmountDue += $due;
                 $totalAmountPaid += $paidForSchedule;
 
                 $status = strtolower($schedule->status ?? '');
 
                 if ($status === 'paid') {
                     $wasLate = $schedule->payment_histories->contains(
-                        fn($ph) => $ph->payment_date > $schedule->due_date
+                        fn ($ph) => $ph->payment_date > $schedule->due_date
                     );
                     $wasLate ? $latePayments++ : $onTimePayments++;
                 } elseif (in_array($status, ['overdue', 'missed'])) {
@@ -165,16 +172,16 @@ class CreditScoreService
         }
 
         return [
-            'total_loans'       => $loans->count(),
-            'completed_loans'   => $completedLoans,
-            'active_loans'      => $activeLoans,
-            'total_schedules'   => $totalSchedules,
-            'on_time_payments'  => $onTimePayments,
-            'late_payments'     => $latePayments,
-            'missed_payments'   => $missedPayments,
-            'total_amount_due'  => $totalAmountDue,
+            'total_loans' => $loans->count(),
+            'completed_loans' => $completedLoans,
+            'active_loans' => $activeLoans,
+            'total_schedules' => $totalSchedules,
+            'on_time_payments' => $onTimePayments,
+            'late_payments' => $latePayments,
+            'missed_payments' => $missedPayments,
+            'total_amount_due' => $totalAmountDue,
             'total_amount_paid' => $totalAmountPaid,
-            'overdue_amount'    => $overdueAmount,
+            'overdue_amount' => $overdueAmount,
         ];
     }
 
@@ -193,8 +200,8 @@ class CreditScoreService
 
         $score = (
             ($meta['on_time_payments'] * 1.0) +
-            ($meta['late_payments']    * 0.5) +
-            ($meta['missed_payments']  * 0.0)
+            ($meta['late_payments'] * 0.5) +
+            ($meta['missed_payments'] * 0.0)
         ) / $total * 100;
 
         return min(100.0, max(0.0, $score));
@@ -267,7 +274,7 @@ class CreditScoreService
             $score >= 700 => self::BAND_GOOD,
             $score >= 550 => self::BAND_FAIR,
             $score >= 400 => self::BAND_POOR,
-            default       => self::BAND_VERY_POOR,
+            default => self::BAND_VERY_POOR,
         };
     }
 }

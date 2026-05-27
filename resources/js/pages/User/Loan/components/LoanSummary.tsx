@@ -1,15 +1,10 @@
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
-    PhilippinePeso,
-    Calendar,
-    Clock,
-    Percent,
-    AlertCircle,
+AlertCircle
 } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 
 export default function LoanSummary({ loanData, onSubmit, isLastStep }) {
     const [agreed, setAgreed] = useState(false);
@@ -18,7 +13,6 @@ export default function LoanSummary({ loanData, onSubmit, isLastStep }) {
         amount = 0,
         interest_type = '—',
         interest_value = 0,
-        interest_period = '—',
         loan_duration = 0,
         duration_unit = '—',
         payment_frequency = '—',

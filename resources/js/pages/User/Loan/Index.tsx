@@ -1,9 +1,9 @@
+import { Link,usePage } from '@inertiajs/react';
+import { ChevronRight,Lock,PhilippinePeso,Search } from 'lucide-react';
+import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Building from '../../../../../public/images/building.png';
 import Mansion from '../../../../../public/images/mansion.png';
-import { PhilippinePeso, ChevronRight, Search, Lock } from 'lucide-react';
-import { useState } from 'react';
-import { Link, usePage } from '@inertiajs/react';
 
 const IMAGES = [Building, Mansion];
 
@@ -102,7 +102,7 @@ function LoanCard({ loan }: any) {
 }
 
 export default function Index() {
-    const { borrower, isVerified, loans, summaries } = usePage().props as any;
+    const { isVerified, loans, summaries } = usePage().props as any;
 
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');
@@ -114,6 +114,7 @@ export default function Index() {
             .toLowerCase()
             .includes(search.toLowerCase());
         const matchesFilter = filter === 'all' || l.status === filter;
+
         return matchesSearch && matchesFilter;
     });
 

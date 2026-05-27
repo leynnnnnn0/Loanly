@@ -8,30 +8,30 @@
 //   <CreditScoreBadge borrowerId={42} showBreakdown />    // full card + chart
 // ------------------------------------------------------------------
 
-import { useEffect, useState } from 'react';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { AlertCircle,ChevronDown,Info } from 'lucide-react';
+import { useEffect,useState } from 'react';
+import { Alert,AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import {
+Card,
+CardContent,
+CardDescription,
+CardHeader,
+CardTitle,
+} from '@/components/ui/card';
+import {
+Collapsible,
+CollapsibleContent,
+CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
+Tooltip,
+TooltipContent,
+TooltipProvider,
+TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ChevronDown, Info, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -215,15 +215,11 @@ function BreakdownRow({
     label,
     description,
     item,
-    band,
 }: {
     label: string;
     description: string;
     item: CreditScoreBreakdownItem;
-    band: Band;
 }) {
-    const cfg = BAND_CONFIG[band];
-
     return (
         <div className="space-y-1">
             <div className="flex items-center justify-between text-sm">
@@ -296,6 +292,7 @@ function CompactBadge({
     className?: string;
 }) {
     const cfg = BAND_CONFIG[data.band];
+
     return (
         <Badge
             variant="outline"
@@ -330,14 +327,21 @@ export function CreditScoreBadge({
 
     useEffect(() => {
         let cancelled = false;
-        setLoading(true);
-        setError(null);
+        const loadingTimer = window.setTimeout(() => {
+            if (!cancelled) {
+                setLoading(true);
+                setError(null);
+            }
+        }, 0);
 
         fetch(`/borrowers/${borrowerId}/credit-score`, {
             headers: { Accept: 'application/json' },
         })
             .then((res) => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) {
+throw new Error(`HTTP ${res.status}`);
+}
+
                 return res.json() as Promise<CreditScoreData>;
             })
             .then((json) => {
@@ -351,17 +355,23 @@ export function CreditScoreBadge({
                     setError(err.message);
                     setLoading(false);
                 }
+
                 console.log(err)
-;            });
+;            
+});
 
         return () => {
             cancelled = true;
+            window.clearTimeout(loadingTimer);
         };
     }, [borrowerId, apiBase]);
 
     // ── Loading ────────────────────────────────────────────────────────────────
     if (loading) {
-        if (compact) return <Skeleton className="h-6 rounded-full" />;
+        if (compact) {
+return <Skeleton className="h-6 rounded-full" />;
+}
+
         return (
             <Card className={cn('w-full', className)}>
                 <CardHeader>
@@ -378,12 +388,14 @@ export function CreditScoreBadge({
 
     // ── Error ──────────────────────────────────────────────────────────────────
     if (error || !data) {
-        if (compact)
-            return (
+        if (compact) {
+return (
                 <Badge variant="destructive" className={className}>
                     Error
                 </Badge>
             );
+}
+
         return (
             <Alert variant="destructive" className={cn('max-w-sm', className)}>
                 <AlertCircle className="h-4 w-4" />
@@ -395,7 +407,9 @@ export function CreditScoreBadge({
     }
 
     // ── Compact mode ───────────────────────────────────────────────────────────
-    if (compact) return <CompactBadge data={data} className={className} />;
+    if (compact) {
+return <CompactBadge data={data} className={className} />;
+}
 
     // ── Full card ──────────────────────────────────────────────────────────────
     return (
@@ -432,7 +446,6 @@ export function CreditScoreBadge({
                                     label={FACTOR_LABELS[key]}
                                     description={FACTOR_DESCRIPTIONS[key]}
                                     item={item}
-                                    band={data.band}
                                 />
                             ))}
 

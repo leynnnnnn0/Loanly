@@ -32,12 +32,13 @@ class User extends Authenticatable
         ];
     }
 
-    public function borrower(){
+    public function borrower()
+    {
         return $this->hasOne(Borrower::class);
     }
 
     public function routeNotificationForMail(): string
     {
-        return $this->email; 
+        return $this->email;
     }
 }

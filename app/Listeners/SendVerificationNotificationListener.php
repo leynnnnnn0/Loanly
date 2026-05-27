@@ -5,8 +5,6 @@ namespace App\Listeners;
 use App\Events\BorrowerRegistered;
 use App\Models\User;
 use App\Notifications\SendVerificationRequestNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class SendVerificationNotificationListener
 {

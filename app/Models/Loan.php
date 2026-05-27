@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Concerns\HasBorrower;
+use Database\Factories\LoanFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Loan extends Model
 {
-    /** @use HasFactory<\Database\Factories\LoanFactory> */
-    use HasFactory, HasBorrower;
+    /** @use HasFactory<LoanFactory> */
+    use HasBorrower, HasFactory;
 
     protected $fillable = [
         'borrower_id',
@@ -28,14 +29,11 @@ class Loan extends Model
         'void_reason',
         'status',
         'max_amount_to_borrow',
-        'remarks'
+        'remarks',
     ];
-
 
     public function payment_schedules()
     {
         return $this->hasMany(PaymentSchedule::class);
     }
-
-    
 }

@@ -1,12 +1,12 @@
+import { Link,usePage } from '@inertiajs/react';
+import { ChevronRight,Lock,PhilippinePeso } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import { Separator } from '@/components/ui/separator';
 import Building from '../../../../../public/images/building.png';
 import Mansion from '../../../../../public/images/mansion.png';
-import { PhilippinePeso, ChevronRight, Lock } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import Navbar from '@/components/Navbar';
-import { Link, usePage } from '@inertiajs/react';
 
 export default function Index() {
-    const { borrower, isVerified, loans, summaries, activeCount } = usePage()
+    const { isVerified, loans, summaries, activeCount } = usePage()
         .props as any;
 
     const summaryCards = [

@@ -12,13 +12,15 @@ class VerificationController extends Controller
     public function index(Request $request)
     {
         $borrower = null;
-        $id = $request->input('id');
-        if($id){
-            $borrower = Borrower::with(['references', 'identification'])->find($id);
+
+        if ($request->filled('id')) {
+            $borrower = Borrower::with(['references', 'identification'])
+                ->where('user_id', $request->user()?->id)
+                ->find($request->input('id'));
         }
-        return Inertia::render('User/Verification/Index',[
-            'borrower' => $borrower
+
+        return Inertia::render('User/Verification/Index', [
+            'borrower' => $borrower,
         ]);
     }
-
 }

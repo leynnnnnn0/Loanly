@@ -14,7 +14,7 @@ class SalesController extends Controller
     public function index(Request $request)
     {
         $from = $request->input('from', now()->startOfYear()->toDateString());
-        $to   = $request->input('to',   now()->toDateString());
+        $to = $request->input('to', now()->toDateString());
 
         // ── Disbursed ─────────────────────────────────────────────────────────
         $totalDisbursed = Loan::whereIn('status', ['active', 'completed'])
@@ -62,7 +62,7 @@ class SalesController extends Controller
             ->groupBy('day')
             ->orderBy('day')
             ->get()
-            ->map(fn($r) => ['day' => $r->day, 'disbursed' => (float) $r->total, 'collected' => 0]);
+            ->map(fn ($r) => ['day' => $r->day, 'disbursed' => (float) $r->total, 'collected' => 0]);
 
         $dailyCollected = PaymentHistory::select(
             DB::raw('DATE(payment_date) as day'),
@@ -80,8 +80,11 @@ class SalesController extends Controller
             $map[$r['day']] = ['day' => $r['day'], 'disbursed' => $r['disbursed'], 'collected' => 0];
         }
         foreach ($dailyCollected as $r) {
-            if (isset($map[$r->day])) $map[$r->day]['collected'] = (float) $r->total;
-            else $map[$r->day] = ['day' => $r->day, 'disbursed' => 0, 'collected' => (float) $r->total];
+            if (isset($map[$r->day])) {
+                $map[$r->day]['collected'] = (float) $r->total;
+            } else {
+                $map[$r->day] = ['day' => $r->day, 'disbursed' => 0, 'collected' => (float) $r->total];
+            }
         }
         ksort($map);
         $dailySeries = array_values($map);
@@ -97,8 +100,8 @@ class SalesController extends Controller
             ->groupBy('day')
             ->orderBy('day')
             ->get()
-            ->map(fn($r) => [
-                'day'   => $r->day,
+            ->map(fn ($r) => [
+                'day' => $r->day,
                 'total' => (float) $r->total,
                 'count' => $r->count,
             ]);
@@ -114,13 +117,13 @@ class SalesController extends Controller
             ->groupBy('days_overdue')
             ->orderBy('days_overdue')
             ->get()
-            ->groupBy(fn($r) => match (true) {
-                $r->days_overdue <= 7   => '1–7 days',
-                $r->days_overdue <= 30  => '8–30 days',
-                $r->days_overdue <= 90  => '31–90 days',
-                default                  => '90+ days',
+            ->groupBy(fn ($r) => match (true) {
+                $r->days_overdue <= 7 => '1–7 days',
+                $r->days_overdue <= 30 => '8–30 days',
+                $r->days_overdue <= 90 => '31–90 days',
+                default => '90+ days',
             })
-            ->map(fn($group, $label) => [
+            ->map(fn ($group, $label) => [
                 'label' => $label,
                 'total' => round($group->sum('total'), 2),
                 'count' => $group->sum('count'),
@@ -134,31 +137,31 @@ class SalesController extends Controller
             ->orderBy('due_date')
             ->limit(15)
             ->get()
-            ->map(fn($s) => [
-                'id'              => $s->id,
-                'due_date'        => $s->due_date,
-                'amount_due'      => (float) $s->amount_due,
-                'days_overdue'    => now()->diffInDays($s->due_date),
+            ->map(fn ($s) => [
+                'id' => $s->id,
+                'due_date' => $s->due_date,
+                'amount_due' => (float) $s->amount_due,
+                'days_overdue' => now()->diffInDays($s->due_date),
                 'contract_number' => $s->loan?->contract_number,
-                'borrower_name'   => $s->loan?->borrower?->full_name,
+                'borrower_name' => $s->loan?->borrower?->full_name,
             ]);
 
         return Inertia::render('Admin/Sales/Index', [
             'filters' => ['from' => $from, 'to' => $to],
             'kpis' => [
-                'total_disbursed'  => round($totalDisbursed, 2),
-                'disbursed_count'  => $disbursedCount,
-                'total_collected'  => round($totalCollected, 2),
-                'collected_count'  => $collectedCount,
-                'total_expected'   => round($totalExpected, 2),
-                'expected_count'   => $expectedCount,
-                'total_overdue'    => round($totalOverdue, 2),
-                'overdue_count'    => $overdueCount,
+                'total_disbursed' => round($totalDisbursed, 2),
+                'disbursed_count' => $disbursedCount,
+                'total_collected' => round($totalCollected, 2),
+                'collected_count' => $collectedCount,
+                'total_expected' => round($totalExpected, 2),
+                'expected_count' => $expectedCount,
+                'total_overdue' => round($totalOverdue, 2),
+                'overdue_count' => $overdueCount,
             ],
-            'dailySeries'       => $dailySeries,
-            'expectedTimeline'  => $expectedTimeline,
-            'overdueBreakdown'  => $overdueBreakdown,
-            'overdueLoans'      => $overdueLoans,
+            'dailySeries' => $dailySeries,
+            'expectedTimeline' => $expectedTimeline,
+            'overdueBreakdown' => $overdueBreakdown,
+            'overdueLoans' => $overdueLoans,
         ]);
     }
 }

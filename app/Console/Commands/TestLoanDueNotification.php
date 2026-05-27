@@ -31,15 +31,17 @@ class TestLoanDueNotification extends Command
         if ($scheduleId = $this->option('schedule')) {
             $schedule = PaymentSchedule::with(['loan.borrower.user'])->find($scheduleId);
 
-            if (!$schedule) {
+            if (! $schedule) {
                 $this->error("PaymentSchedule #{$scheduleId} not found.");
+
                 return;
             }
         } elseif ($loanId = $this->option('loan')) {
             $loan = Loan::with(['borrower.user', 'payment_schedules'])->find($loanId);
 
-            if (!$loan) {
+            if (! $loan) {
                 $this->error("Loan #{$loanId} not found.");
+
                 return;
             }
 
@@ -48,8 +50,9 @@ class TestLoanDueNotification extends Command
                 ->orderBy('due_date')
                 ->first();
 
-            if (!$schedule) {
+            if (! $schedule) {
                 $this->error("No pending/overdue schedules found for Loan #{$loanId}.");
+
                 return;
             }
 
@@ -61,8 +64,9 @@ class TestLoanDueNotification extends Command
                 ->orderBy('due_date')
                 ->first();
 
-            if (!$schedule) {
+            if (! $schedule) {
                 $this->error('No pending/overdue schedules found in the system.');
+
                 return;
             }
         }
@@ -70,8 +74,9 @@ class TestLoanDueNotification extends Command
         // ── Resolve the notifiable user ───────────────────────────────────────
         $user = $schedule->loan?->borrower?->user;
 
-        if (!$user) {
+        if (! $user) {
             $this->error("No user found for schedule #{$schedule->id}.");
+
             return;
         }
 
@@ -93,13 +98,14 @@ class TestLoanDueNotification extends Command
                 ['Borrower',         $schedule->loan->borrower->full_name],
                 ['Recipient Email',  $user->email],
                 ['Due Date',         $schedule->due_date],
-                ['Amount Due',       'PHP ' . number_format($schedule->amount_due, 2)],
+                ['Amount Due',       'PHP '.number_format($schedule->amount_due, 2)],
                 ['Schedule Status',  $schedule->status],
             ]
         );
 
-        if (!$this->confirm('Send this test notification now?', true)) {
+        if (! $this->confirm('Send this test notification now?', true)) {
             $this->line('Aborted.');
+
             return;
         }
 

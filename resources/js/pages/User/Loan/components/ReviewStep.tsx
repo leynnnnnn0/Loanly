@@ -1,12 +1,11 @@
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
 import {
-    CheckCircle2,
-    User,
-    ShieldCheck,
-    Users,
-    PhilippinePeso,
+PhilippinePeso,
+ShieldCheck,
+User,
+Users
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 function ReviewSection({ icon: Icon, title, children }) {
     return (

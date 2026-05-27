@@ -1,48 +1,39 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Head,Link,useForm } from '@inertiajs/react';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    ArrowLeft,
-    User,
-    ShieldCheck,
-    Users,
-    CreditCard,
-    Calendar,
-    Globe,
-    Phone,
-    MapPin,
-    Hash,
-    CheckCircle2,
-    XCircle,
-    Clock,
-    ExternalLink,
-    AlertTriangle,
-    Mail,
-    IdCard,
+AlertTriangle,
+ArrowLeft,
+Calendar,
+CheckCircle2,
+Clock,
+CreditCard,
+ExternalLink,
+Globe,
+Hash,
+IdCard,
+Mail,
+MapPin,
+Phone,
+ShieldCheck,
+User,
+Users,
+XCircle,
 } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import CreditScoreBadge from '@/components/CreditScoreBadge';
+import { Button } from '@/components/ui/button';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
+import {
+Dialog,
+DialogContent,
+DialogDescription,
+DialogFooter,
+DialogHeader,
+DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Borrower {
@@ -118,6 +109,7 @@ const statusConfig = {
 
 function StatusBadge({ status }: { status: string }) {
     const cfg = statusConfig[status] ?? statusConfig.pending;
+
     return (
         <span
             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold ${cfg.class}`}
@@ -161,6 +153,7 @@ function LoanStatusBadge({ status }: { status: string }) {
         pending: 'bg-amber-50 text-amber-700 border-amber-200',
         voided: 'bg-red-50 text-red-700 border-red-200',
     };
+
     return (
         <span
             className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${map[status] ?? map.pending}`}

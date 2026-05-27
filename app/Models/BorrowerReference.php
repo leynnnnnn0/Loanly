@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Concerns\HasBorrower;
+use Database\Factories\BorrowerReferenceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BorrowerReference extends Model
 {
-    /** @use HasFactory<\Database\Factories\BorrowerReferenceFactory> */
-    use HasFactory, HasBorrower;
+    /** @use HasFactory<BorrowerReferenceFactory> */
+    use HasBorrower, HasFactory;
 
     protected $fillable = [
         'borrower_id',
@@ -17,9 +18,6 @@ class BorrowerReference extends Model
         'last_name',
         'phone_number',
         'address',
-        'relationship'
+        'relationship',
     ];
-
-    
-
 }

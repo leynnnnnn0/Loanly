@@ -1,33 +1,20 @@
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head,Link } from '@inertiajs/react';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Search,
-    Users,
-    UserCheck,
-    UserX,
-    Clock,
-    ChevronRight,
-    Eye,
+Clock,
+Eye,
+UserCheck,
+Users,
+UserX
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+Table,
+TableBody,
+TableCell,
+TableHead,
+TableHeader,
+TableRow,
+} from '@/components/ui/table';
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 interface Borrower {
@@ -85,6 +72,7 @@ const statusConfig = {
 
 function StatusBadge({ status }: { status: string }) {
     const cfg = statusConfig[status] ?? statusConfig.pending;
+
     return (
         <span
             className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${cfg.class}`}
@@ -95,8 +83,9 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
-function StatCard({ label, value, icon: Icon, color, variant = 'blue' }: any) {
+function StatCard({ label, value, icon: Icon, variant = 'blue' }: any) {
       const bg = variant === 'green' ? 'bg-[#b4e4a1]' : 'bg-[#c3d9eb]';
+
     return (
         <div className={`${bg} rounded-2xl border-0 p-2 shadow-sm`}>
             <div className="flex flex-col gap-4 p-5">
@@ -111,21 +100,7 @@ function StatCard({ label, value, icon: Icon, color, variant = 'blue' }: any) {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function BorrowerIndex({ borrowers, filters, stats }: Props) {
-    const [search, setSearch] = useState(filters.search ?? '');
-    const [status, setStatus] = useState(filters.status ?? 'all');
-
-    const applyFilters = () => {
-        const params = new URLSearchParams();
-        if (search) params.set('search', search);
-        if (status && status !== 'all') params.set('status', status);
-        window.location.href = `/admin/borrowers?${params.toString()}`;
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') applyFilters();
-    };
-
+export default function BorrowerIndex({ borrowers, stats }: Props) {
     const formatDate = (date: string) =>
         new Date(date).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -177,34 +152,6 @@ export default function BorrowerIndex({ borrowers, filters, stats }: Props) {
                         color="bg-red-500"
                     />
                 </div>
-
-                {/* Filters */}
-                {/* <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <div className="relative flex-1">
-                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            placeholder="Search by name, phone, or ID number..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            className="pl-9"
-                        />
-                    </div>
-                    <Select value={status} onValueChange={setStatus}>
-                        <SelectTrigger className="w-full sm:w-44">
-                            <SelectValue placeholder="All statuses" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="verified">Verified</SelectItem>
-                            <SelectItem value="rejected">Rejected</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Button onClick={applyFilters} className="w-full sm:w-auto">
-                        Search
-                    </Button>
-                </div> */}
 
                 {/* Table */}
                 <div className="border-0 shadow-sm">

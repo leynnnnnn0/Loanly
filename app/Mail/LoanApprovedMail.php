@@ -24,6 +24,7 @@ class LoanApprovedMail extends Mailable
     public function withPdfContent(string $content): static
     {
         $this->pdfContent = $content;
+
         return $this;
     }
 
@@ -43,13 +44,13 @@ class LoanApprovedMail extends Mailable
 
     public function attachments(): array
     {
-        if (!$this->pdfContent) {
+        if (! $this->pdfContent) {
             return [];
         }
 
         return [
             Attachment::fromData(
-                fn() => base64_decode($this->pdfContent), 
+                fn () => base64_decode($this->pdfContent),
                 "Promissory-Note-{$this->loan->contract_number}.pdf"
             )->withMime('application/pdf'),
         ];

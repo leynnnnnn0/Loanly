@@ -1,15 +1,15 @@
+import { ShieldCheck,Upload } from 'lucide-react';
+import { useRef } from 'react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
 } from '@/components/ui/select';
-import { Upload, ShieldCheck } from 'lucide-react';
-import { useRef } from 'react';
 
 const ID_TYPES = [
     "Driver's License",
@@ -34,7 +34,10 @@ export default function IDVerificationStep({ data, onChange, onNext, onBack }) {
 
     const handleFile = (e) => {
         const file = e.target.files?.[0];
-        if (file) onChange({ ...data, image_file: file, image_preview: URL.createObjectURL(file) });
+
+        if (file) {
+onChange({ ...data, image_file: file, image_preview: URL.createObjectURL(file) });
+}
     };
 
     // const isValid =

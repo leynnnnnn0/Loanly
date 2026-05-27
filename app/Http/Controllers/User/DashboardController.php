@@ -16,9 +16,9 @@ class DashboardController extends Controller
 
         $loans = collect();
         $summaries = [
-            'total_loan_amount'    => 0,
-            'this_month_due'       => 0,
-            'total_remaining'      => 0,
+            'total_loan_amount' => 0,
+            'this_month_due' => 0,
+            'total_remaining' => 0,
         ];
 
         if ($borrower) {
@@ -44,16 +44,16 @@ class DashboardController extends Controller
                         ->first();
 
                     return [
-                        'id'             => $loan->id,
+                        'id' => $loan->id,
                         'contract_number' => $loan->contract_number,
-                        'amount'         => (float) $loan->amount,
-                        'remaining'      => max(0, (float) $remaining),
-                        'terms'          => $loan->loan_duration,
-                        'duration_unit'  => $loan->duration_unit,
-                        'monthly_due'    => $nextSchedule ? (float) $nextSchedule->amount_due : 0,
-                        'status'         => $loan->status,
-                        'next_due_date'  => $nextSchedule?->due_date,
-                        'variant'        => $loan->id % 2 === 0 ? 'secondary' : 'primary',
+                        'amount' => (float) $loan->amount,
+                        'remaining' => max(0, (float) $remaining),
+                        'terms' => $loan->loan_duration,
+                        'duration_unit' => $loan->duration_unit,
+                        'monthly_due' => $nextSchedule ? (float) $nextSchedule->amount_due : 0,
+                        'status' => $loan->status,
+                        'next_due_date' => $nextSchedule?->due_date,
+                        'variant' => $loan->id % 2 === 0 ? 'secondary' : 'primary',
                     ];
                 });
 
@@ -84,10 +84,10 @@ class DashboardController extends Controller
         }
 
         return Inertia::render('User/Dashboard/Index', [
-            'borrower'    => $borrower,
-            'isVerified'  => $isVerified,
-            'loans'       => $loans,
-            'summaries'   => $summaries,
+            'borrower' => $borrower,
+            'isVerified' => $isVerified,
+            'loans' => $loans,
+            'summaries' => $summaries,
             'activeCount' => $borrower
                 ? $borrower->loans()->where('status', 'active')->where('is_voided', false)->count()
                 : 0,

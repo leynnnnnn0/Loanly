@@ -1,19 +1,19 @@
+import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
-import VerificationStepIndicator from './components/VerificationStepIndicator';
 import AboutYouStep from './components/AboutYouStep';
+import ConfirmationStep from './components/ConfirmationStep';
 import IdentityStep from './components/IdentityStep';
 import ReferencesStep from './components/ReferenceStep';
-import ConfirmationStep from './components/ConfirmationStep';
+import VerificationStepIndicator from './components/VerificationStepIndicator';
 import VerificationSuccess from './components/VerificationSuccess';
 
-import { useState } from 'react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
 
 export default function Index({ borrower }: any) {
     console.log(borrower);
     const [step, setStep] = useState(1);
-    const [submitted, setSubmitted] = useState(false);
+    const [submitted] = useState(false);
 
     // Derive prefill values from borrower if present
     const id = borrower?.identification ?? {};
