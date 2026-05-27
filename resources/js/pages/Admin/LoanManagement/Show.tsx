@@ -45,6 +45,10 @@ TableHeader,
 TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import {
+    preventInvalidNumberKey,
+    sanitizeDecimalInput,
+} from '@/lib/forms/validation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PaymentAttachment {
@@ -749,13 +753,18 @@ return;
                                 ₱
                             </span>
                             <Input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 step="0.01"
                                 placeholder="0.00"
                                 className="pl-7"
                                 value={data.rebate_amount}
+                                onKeyDown={preventInvalidNumberKey}
                                 onChange={(e) =>
-                                    setData('rebate_amount', e.target.value)
+                                    setData(
+                                        'rebate_amount',
+                                        sanitizeDecimalInput(e.target.value),
+                                    )
                                 }
                             />
                         </div>
@@ -876,13 +885,18 @@ return;
                                 ₱
                             </span>
                             <Input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 step="0.01"
                                 placeholder="0.00"
                                 className="pl-7"
                                 value={data.penalty_amount}
+                                onKeyDown={preventInvalidNumberKey}
                                 onChange={(e) =>
-                                    setData('penalty_amount', e.target.value)
+                                    setData(
+                                        'penalty_amount',
+                                        sanitizeDecimalInput(e.target.value),
+                                    )
                                 }
                             />
                         </div>

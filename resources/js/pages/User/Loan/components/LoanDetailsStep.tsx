@@ -9,6 +9,10 @@ SelectItem,
 SelectTrigger,
 SelectValue,
 } from '@/components/ui/select';
+import {
+    preventInvalidNumberKey,
+    sanitizeDecimalInput,
+} from '@/lib/forms/validation';
 
 const INTEREST_TYPES = ['percentage', 'flat'];
 const INTEREST_PERIODS = ['monthly', 'annually', 'per_term'];
@@ -18,6 +22,8 @@ const PAYMENT_FREQUENCIES = ['daily', 'weekly', 'bi-weekly', 'monthly'];
 export default function LoanDetailsStep({ data, onChange, onNext, onBack }) {
     const handleChange = (field) => (e) =>
         onChange({ ...data, [field]: e.target.value });
+    const handleNumberChange = (field) => (e) =>
+        onChange({ ...data, [field]: sanitizeDecimalInput(e.target.value) });
 
     const handleSelect = (field) => (value) =>
         onChange({ ...data, [field]: value });
@@ -50,10 +56,12 @@ export default function LoanDetailsStep({ data, onChange, onNext, onBack }) {
                 <div className="relative">
                     <PhilippinePeso className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#acacac]" />
                     <Input
-                        type="number"
+                        type="text"
+                        inputMode="decimal"
                         placeholder="50,000"
                         value={data.amount || ''}
-                        onChange={handleChange('amount')}
+                        onKeyDown={preventInvalidNumberKey}
+                        onChange={handleNumberChange('amount')}
                         min={1000}
                         max={100000}
                         className="rounded-lg border-[#e5e5e5] pl-9 focus-visible:ring-secondary"
@@ -93,12 +101,14 @@ export default function LoanDetailsStep({ data, onChange, onNext, onBack }) {
                         Interest Value
                     </Label>
                     <Input
-                        type="number"
+                        type="text"
+                        inputMode="decimal"
                         placeholder={
                             data.interest_type === 'percentage' ? '2' : '500'
                         }
                         value={data.interest_value || ''}
-                        onChange={handleChange('interest_value')}
+                        onKeyDown={preventInvalidNumberKey}
+                        onChange={handleNumberChange('interest_value')}
                         className="rounded-lg border-[#e5e5e5] focus-visible:ring-secondary"
                     />
                 </div>
@@ -133,10 +143,12 @@ export default function LoanDetailsStep({ data, onChange, onNext, onBack }) {
                 <div className="space-y-2">
                     <Label className="text-sm font-medium">Loan Duration</Label>
                     <Input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         placeholder="12"
                         value={data.loan_duration || ''}
-                        onChange={handleChange('loan_duration')}
+                        onKeyDown={preventInvalidNumberKey}
+                        onChange={handleNumberChange('loan_duration')}
                         className="rounded-lg border-[#e5e5e5] focus-visible:ring-secondary"
                     />
                 </div>

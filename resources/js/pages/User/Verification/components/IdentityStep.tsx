@@ -1,14 +1,15 @@
-import { ShieldCheck,Upload } from 'lucide-react';
+import { ShieldCheck, Upload } from 'lucide-react';
 import { useRef } from 'react';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-Select,
-SelectContent,
-SelectItem,
-SelectTrigger,
-SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 
 const ID_TYPES = [
@@ -23,7 +24,14 @@ const ID_TYPES = [
     'PRC ID',
 ];
 
-export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
+export default function IdentityStep({
+    data,
+    errors,
+    onChange,
+    onNext,
+    onBack,
+    canContinue,
+}: any) {
     const fileRef = useRef(null);
 
     const set = (field) => (val) =>
@@ -40,15 +48,6 @@ export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
             });
         }
     };
-
-    // const isValid =
-    //     data.id_type &&
-    //     data.id_number &&
-    //     data.issue_date &&
-    //     data.expiry_date &&
-    //     data.image_file;
-    
-    const isValid = true;
 
     return (
         <div className="space-y-8">
@@ -116,6 +115,7 @@ export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
                     </>
                 )}
             </div>
+            <InputError message={errors.image_preview} />
 
             {/* ID fields */}
             <div className="space-y-5">
@@ -138,6 +138,7 @@ export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
                             ))}
                         </SelectContent>
                     </Select>
+                    <InputError message={errors.id_type} />
                 </div>
 
                 <div className="space-y-2">
@@ -148,8 +149,10 @@ export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
                         placeholder="Enter your ID number"
                         value={data.id_number || ''}
                         onChange={set('id_number')}
+                        aria-invalid={Boolean(errors.id_number)}
                         className="rounded-xl border-[#e8e8e8] focus-visible:ring-black"
                     />
+                    <InputError message={errors.id_number} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -161,8 +164,10 @@ export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
                             type="date"
                             value={data.issue_date || ''}
                             onChange={set('issue_date')}
+                            aria-invalid={Boolean(errors.issue_date)}
                             className="rounded-xl border-[#e8e8e8] focus-visible:ring-black"
                         />
+                        <InputError message={errors.issue_date} />
                     </div>
                     <div className="space-y-2">
                         <Label className="text-sm font-medium text-black/70">
@@ -172,8 +177,10 @@ export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
                             type="date"
                             value={data.expiry_date || ''}
                             onChange={set('expiry_date')}
+                            aria-invalid={Boolean(errors.expiry_date)}
                             className="rounded-xl border-[#e8e8e8] focus-visible:ring-black"
                         />
+                        <InputError message={errors.expiry_date} />
                     </div>
                 </div>
             </div>
@@ -190,7 +197,7 @@ export default function IdentityStep({ data, onChange, onNext, onBack } : any) {
                 </Button>
                 <Button
                     onClick={onNext}
-                    disabled={!isValid}
+                    disabled={!canContinue}
                     className="rounded-full bg-accent px-8 py-5 text-sm font-bold text-white hover:bg-accent/85 disabled:opacity-40"
                 >
                     Continue →

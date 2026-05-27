@@ -19,8 +19,8 @@ class StoreBorrowerProfileRequest extends FormRequest
         $hasBorrower = $this->user()?->borrower()->exists() ?? false;
 
         return [
-            'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
+            'first_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s]+$/'],
+            'last_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s]+$/'],
             'phone_number' => ['required', 'string', 'max:20'],
             'address' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['required', 'date', 'before:-18 years'],
@@ -38,8 +38,8 @@ class StoreBorrowerProfileRequest extends FormRequest
             ],
 
             'references' => ['required', 'array', 'min:3'],
-            'references.*.first_name' => ['required', 'string', 'max:100'],
-            'references.*.last_name' => ['required', 'string', 'max:100'],
+            'references.*.first_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s]+$/'],
+            'references.*.last_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s]+$/'],
             'references.*.phone_number' => ['required', 'string', 'max:20'],
             'references.*.address' => ['required', 'string', 'max:255'],
             'references.*.relationship' => ['required', 'string', 'max:100'],
@@ -56,6 +56,10 @@ class StoreBorrowerProfileRequest extends FormRequest
             'expiry_date.after' => 'Your ID must not be expired.',
             'issue_date.before' => 'Issue date must be in the past.',
             'references.min' => 'Please provide at least 3 references.',
+            'first_name.regex' => 'First name may only contain letters and spaces.',
+            'last_name.regex' => 'Last name may only contain letters and spaces.',
+            'references.*.first_name.regex' => 'Reference first names may only contain letters and spaces.',
+            'references.*.last_name.regex' => 'Reference last names may only contain letters and spaces.',
         ];
     }
 }

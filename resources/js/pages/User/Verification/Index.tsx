@@ -2,6 +2,12 @@ import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
+import {
+    aboutYouSchema,
+    identitySchema,
+    referencesSchema,
+    zodErrors,
+} from '@/lib/forms/validation';
 import AboutYouStep from './components/AboutYouStep';
 import ConfirmationStep from './components/ConfirmationStep';
 import IdentityStep from './components/IdentityStep';
@@ -9,9 +15,7 @@ import ReferencesStep from './components/ReferenceStep';
 import VerificationStepIndicator from './components/VerificationStepIndicator';
 import VerificationSuccess from './components/VerificationSuccess';
 
-
 export default function Index({ borrower }: any) {
-    console.log(borrower);
     const [step, setStep] = useState(1);
     const [submitted] = useState(false);
 
@@ -41,7 +45,13 @@ export default function Index({ borrower }: any) {
         })),
     });
 
-    const next = () => setStep((s) => Math.min(s + 1, 4));
+    const next = () => {
+        if (!currentStepIsValid) {
+            return;
+        }
+
+        setStep((s) => Math.min(s + 1, 4));
+    };
     const back = () => setStep((s) => Math.max(s - 1, 1));
 
     const handleAboutYouChange = (values: any) => {
@@ -96,6 +106,18 @@ export default function Index({ borrower }: any) {
             : existingIdImageUrl,
     };
 
+    const aboutYouResult = aboutYouSchema.safeParse(aboutYou);
+    const identityResult = identitySchema.safeParse(identity);
+    const referencesResult = referencesSchema.safeParse(data.references);
+    const currentStepIsValid =
+        step === 1
+            ? aboutYouResult.success
+            : step === 2
+              ? identityResult.success
+              : step === 3
+                ? referencesResult.success
+                : true;
+
     return (
         <div className="min-h-screen bg-[#FCFCFC] px-50 pb-20">
             <Navbar />
@@ -122,24 +144,30 @@ export default function Index({ borrower }: any) {
                         {step === 1 && (
                             <AboutYouStep
                                 data={aboutYou}
+                                errors={zodErrors(aboutYouResult)}
                                 onChange={handleAboutYouChange}
                                 onNext={next}
+                                canContinue={aboutYouResult.success}
                             />
                         )}
                         {step === 2 && (
                             <IdentityStep
                                 data={identity}
+                                errors={zodErrors(identityResult)}
                                 onChange={handleIdentityChange}
                                 onNext={next}
                                 onBack={back}
+                                canContinue={identityResult.success}
                             />
                         )}
                         {step === 3 && (
                             <ReferencesStep
                                 data={data.references}
+                                errors={zodErrors(referencesResult)}
                                 onChange={handleReferencesChange}
                                 onNext={next}
                                 onBack={back}
+                                canContinue={referencesResult.success}
                             />
                         )}
                         {step === 4 && (

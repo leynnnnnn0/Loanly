@@ -1,14 +1,16 @@
 import { Trash2 } from 'lucide-react';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-Select,
-SelectContent,
-SelectItem,
-SelectTrigger,
-SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
+import { sanitizeNameInput } from '@/lib/forms/validation';
 
 const RELATIONSHIPS = [
     'Parent',
@@ -34,12 +36,21 @@ const emptyRef = () => ({
 function ReferenceCard({
     reference,
     index,
+    errors,
     onChange,
     onRemove,
     canRemove,
-} : any) {
+}: any) {
     const set = (field) => (val) =>
-        onChange(index, field, val?.target ? val.target.value : val);
+        onChange(
+            index,
+            field,
+            field === 'first_name' || field === 'last_name'
+                ? sanitizeNameInput(val?.target ? val.target.value : val)
+                : val?.target
+                  ? val.target.value
+                  : val,
+        );
 
     const isRequired = index < 3;
 
@@ -80,8 +91,10 @@ function ReferenceCard({
                         placeholder="Juan"
                         value={reference.first_name}
                         onChange={set('first_name')}
+                        aria-invalid={Boolean(errors.first_name)}
                         className="rounded-xl border-[#e8e8e8] text-sm focus-visible:ring-black"
                     />
+                    <InputError message={errors.first_name} />
                 </div>
                 <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-black/50">
@@ -91,8 +104,10 @@ function ReferenceCard({
                         placeholder="Dela Cruz"
                         value={reference.last_name}
                         onChange={set('last_name')}
+                        aria-invalid={Boolean(errors.last_name)}
                         className="rounded-xl border-[#e8e8e8] text-sm focus-visible:ring-black"
                     />
+                    <InputError message={errors.last_name} />
                 </div>
             </div>
 
@@ -106,8 +121,10 @@ function ReferenceCard({
                         placeholder="+63 912 345 6789"
                         value={reference.phone_number}
                         onChange={set('phone_number')}
+                        aria-invalid={Boolean(errors.phone_number)}
                         className="rounded-xl border-[#e8e8e8] text-sm focus-visible:ring-black"
                     />
+                    <InputError message={errors.phone_number} />
                 </div>
                 <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-black/50">
@@ -128,6 +145,7 @@ function ReferenceCard({
                             ))}
                         </SelectContent>
                     </Select>
+                    <InputError message={errors.relationship} />
                 </div>
             </div>
 
@@ -140,14 +158,23 @@ function ReferenceCard({
                     placeholder="Street, Barangay, City"
                     value={reference.address}
                     onChange={set('address')}
+                    aria-invalid={Boolean(errors.address)}
                     className="rounded-xl border-[#e8e8e8] text-sm focus-visible:ring-black"
                 />
+                <InputError message={errors.address} />
             </div>
         </div>
     );
 }
 
-export default function ReferencesStep({ data, onChange, onNext, onBack }) {
+export default function ReferencesStep({
+    data,
+    errors,
+    onChange,
+    onNext,
+    onBack,
+    canContinue,
+}) {
     const refs = data.length > 0 ? data : [emptyRef(), emptyRef(), emptyRef()];
 
     const updateRef = (index, field, value) => {
@@ -159,13 +186,11 @@ export default function ReferencesStep({ data, onChange, onNext, onBack }) {
 
     const removeRef = (index) => {
         if (refs.length <= 3) {
-return;
-}
+            return;
+        }
 
         onChange(refs.filter((_, i) => i !== index));
     };
-
-    const isValid = true;
 
     return (
         <div className="space-y-8">
@@ -189,6 +214,13 @@ return;
                         key={index}
                         reference={ref}
                         index={index}
+                        errors={{
+                            first_name: errors[`${index}.first_name`],
+                            last_name: errors[`${index}.last_name`],
+                            phone_number: errors[`${index}.phone_number`],
+                            address: errors[`${index}.address`],
+                            relationship: errors[`${index}.relationship`],
+                        }}
                         onChange={updateRef}
                         onRemove={removeRef}
                         canRemove={refs.length > 3}
@@ -216,7 +248,7 @@ return;
                 </Button>
                 <Button
                     onClick={onNext}
-                    disabled={!isValid}
+                    disabled={!canContinue}
                     className="rounded-full bg-accent px-8 py-5 text-sm font-bold text-white hover:bg-accent/85 disabled:opacity-40"
                 >
                     Continue →

@@ -57,6 +57,10 @@ TableHeader,
 TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import {
+    preventInvalidNumberKey,
+    sanitizeDecimalInput,
+} from '@/lib/forms/validation';
 function storageUrl(path: string): string {
     return `/storage/${path}`;
 }
@@ -426,13 +430,18 @@ return;
                                 ₱
                             </span>
                             <Input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 step="0.01"
                                 placeholder="0.00"
                                 className="pl-7"
                                 value={data.amount_paid}
+                                onKeyDown={preventInvalidNumberKey}
                                 onChange={(e) =>
-                                    setData('amount_paid', e.target.value)
+                                    setData(
+                                        'amount_paid',
+                                        sanitizeDecimalInput(e.target.value),
+                                    )
                                 }
                             />
                         </div>

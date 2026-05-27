@@ -11,6 +11,10 @@ import { toast } from 'sonner';
 import LowCreditBlock from '@/components/LowCreditBlock';
 import Navbar from '@/components/Navbar';
 import { Separator } from '@/components/ui/separator';
+import {
+    preventInvalidNumberKey,
+    sanitizeDecimalInput,
+} from '@/lib/forms/validation';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface ScheduleRow {
@@ -201,15 +205,21 @@ export default function Create() {
                                                 ₱
                                             </span>
                                             <input
-                                                type="number"
+                                                type="text"
+                                                inputMode="decimal"
                                                 min={1000}
                                                 max={availableToBorrow}
                                                 step={100}
                                                 value={data.amount}
+                                                onKeyDown={
+                                                    preventInvalidNumberKey
+                                                }
                                                 onChange={(e) =>
                                                     setData(
                                                         'amount',
-                                                        e.target.value,
+                                                        sanitizeDecimalInput(
+                                                            e.target.value,
+                                                        ),
                                                     )
                                                 }
                                                 placeholder="e.g. 5000"
