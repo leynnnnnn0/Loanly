@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
 
@@ -123,4 +124,29 @@ test('borrower profile updates reset review state and keep the existing image wh
         ->and($borrower->references)->toHaveCount(3);
 
     Event::assertNotDispatched(BorrowerRegistered::class);
+});
+
+test('reverification preloads the existing identification image preview', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $borrower = Borrower::factory()
+        ->for($user)
+        ->rejected()
+        ->create();
+
+    BorrowerIdentification::factory()
+        ->for($borrower)
+        ->create(['image_path' => 'borrower-ids/original.jpg']);
+
+    Storage::disk('public')->put('borrower-ids/original.jpg', 'existing-file');
+
+    $this
+        ->actingAs($user)
+        ->get(route('user.verification', ['id' => $borrower->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('User/Verification/Index')
+            ->where('borrower.identification.id_image_url', '/storage/borrower-ids/original.jpg')
+        );
 });

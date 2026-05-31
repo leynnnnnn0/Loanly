@@ -78,6 +78,30 @@ test('loan application rejects amounts above borrower capacity', function () {
         ->assertSessionHasErrors('amount');
 });
 
+test('credit score endpoint is available to admins and the owning borrower', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create();
+    $borrower = Borrower::factory()->for($user)->verified()->create();
+    $otherUser = User::factory()->create();
+
+    $this
+        ->actingAs($admin)
+        ->getJson(route('borrowers.credit-score', $borrower))
+        ->assertOk()
+        ->assertJsonStructure(['score', 'band']);
+
+    $this
+        ->actingAs($user)
+        ->getJson(route('borrowers.credit-score', $borrower))
+        ->assertOk()
+        ->assertJsonStructure(['score', 'band']);
+
+    $this
+        ->actingAs($otherUser)
+        ->getJson(route('borrowers.credit-score', $borrower))
+        ->assertForbidden();
+});
+
 test('borrower can void only their pending loan', function () {
     Notification::fake();
 

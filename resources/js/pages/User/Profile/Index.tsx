@@ -134,9 +134,6 @@ export default function Index({ borrower }: Props) {
         accountStatusMap[borrower.account_status] ?? accountStatusMap.pending;
     const StatusIcon = status.icon;
     const BannerIcon = status.bannerIcon;
-    const canReverify =
-        borrower.account_status === 'rejected' ||
-        borrower.account_status === 'not_verified';
 
     const initials =
         `${borrower.first_name?.[0] ?? ''}${borrower.last_name?.[0] ?? ''}`.toUpperCase();
@@ -187,15 +184,7 @@ export default function Index({ borrower }: Props) {
                                 {status.label}
                             </span>
 
-                            {canReverify && (
-                                <Link
-                                    href={`/user/verification?id=${borrower.id}`}
-                                    className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-accent/90"
-                                >
-                                    Reverify now
-                                    <ArrowRight className="size-4" />
-                                </Link>
-                            )}
+                           
                         </div>
                     </div>
                 </div>

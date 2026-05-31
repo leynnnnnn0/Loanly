@@ -87,7 +87,7 @@ export default function IdentityStep({
                         <ShieldCheck className="size-9 text-green-500" />
                         <div>
                             <p className="text-sm font-semibold text-green-700">
-                                {data.image_file?.name}
+                                {data.image_file?.name ?? 'Current ID photo'}
                             </p>
                             <p className="text-xs text-green-500">
                                 Tap to replace

@@ -22,6 +22,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/borrowers/{borrower}/credit-score', [BorrowerController::class, 'creditScore'])
+        ->name('borrowers.credit-score');
 });
 
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
@@ -38,7 +40,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/loans/schedules/{scheduleId}/rebate', [LoanManagementController::class, 'addRebate'])->name('admin.loans.rebate.add');
     Route::put('/loans/schedules/{scheduleId}/rebate', [LoanManagementController::class, 'updateRebate'])->name('admin.loans.rebate.update');
 
-    Route::get('/borrowers/{borrower}/credit-score', [BorrowerController::class, 'creditScore']);
     Route::put('/borrowers/{borrower}/verify', [BorrowerController::class, 'verify']);
     Route::put('/borrowers/{borrower}/reject', [BorrowerController::class, 'reject']);
 });

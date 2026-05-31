@@ -355,10 +355,7 @@ throw new Error(`HTTP ${res.status}`);
                     setError(err.message);
                     setLoading(false);
                 }
-
-                console.log(err)
-;            
-});
+            });
 
         return () => {
             cancelled = true;

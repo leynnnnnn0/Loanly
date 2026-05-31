@@ -214,19 +214,25 @@ export default function Create() {
 
     const [canLoan, setCanLoan] = useState(true);
     useEffect(() => {
-
         fetch(`/borrowers/${borrower.id}/credit-score`)
-            .then(res => {
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(`Credit score request failed: ${res.status}`);
+                }
+
                 return res.json();
             })
-            .then(json => {
-                if (json.band == 'Poor' || json.band == 'Very Poor') {
-                    setCanLoan(false)
+            .then((json) => {
+                if (json.band === 'Poor' || json.band === 'Very Poor') {
+                    setCanLoan(false);
                 } else {
-                    setCanLoan(true)
+                    setCanLoan(true);
                 }
+            })
+            .catch(() => {
+                toast.error('Unable to load your credit score.');
             });
-    })
+    }, [borrower.id]);
 
     return (
         <div className="flex min-h-screen flex-col space-y-8 bg-[#FCFCFC] px-50 pb-20">

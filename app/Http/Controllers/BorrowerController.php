@@ -46,8 +46,15 @@ class BorrowerController extends Controller
         return back()->with('success', 'Borrower rejected.');
     }
 
-    public function creditScore(Borrower $borrower): JsonResponse
+    public function creditScore(Request $request, Borrower $borrower): JsonResponse
     {
+        $user = $request->user();
+
+        abort_if(
+            $user->role !== 'admin' && $borrower->user_id !== $user->id,
+            403
+        );
+
         return response()->json($borrower->getCreditScore());
     }
 }

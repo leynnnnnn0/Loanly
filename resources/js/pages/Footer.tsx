@@ -3,49 +3,53 @@ export default function Footer() {
     return (
         <>
             {/* Simple Footer */}
-            <footer className="border-t border-slate-100 bg-primary pt-20 pb-10">
+            <footer className="border-t border-secondary bg-secondary/50 pt-16 pb-8">
                 <div className="mx-auto max-w-7xl px-6">
-                    <div className="grid grid-cols-2 gap-12 md:grid-cols-4 lg:grid-cols-5">
+                    <div className="grid grid-cols-2 gap-10 md:grid-cols-4 lg:grid-cols-5">
                         {/* Brand Column */}
                         <div className="col-span-2 lg:col-span-2">
                             <div className="mb-6 flex items-center gap-2">
-                                <img src={Logo} alt="logo" className="size-8" />
+                                <img
+                                    src={Logo}
+                                    alt="Loanly logo"
+                                    className="h-10"
+                                />
                             </div>
-                            <p className="max-w-xs text-sm leading-relaxed text-white">
-                                The secure digital ledger for your personal and
-                                business debts. Keep your records private,
-                                organized, and always accessible.
+                            <p className="max-w-xs text-sm leading-relaxed text-gray-600">
+                                A secure online lending app for borrower
+                                verification, loan requests, document uploads,
+                                notifications, and repayment tracking.
                             </p>
                         </div>
 
                         {/* Links: Product */}
                         <div>
-                            <h4 className="mb-6 text-xs font-black tracking-widest text-white uppercase">
+                            <h4 className="mb-6 text-xs font-black tracking-widest text-gray-900 uppercase">
                                 Quick Links
                             </h4>
-                            <ul className="space-y-4 text-sm font-medium text-white">
-                                <li className="cursor-pointer hover:text-blue-600">
+                            <ul className="space-y-4 text-sm font-medium text-gray-600">
+                                <li>
                                     <a
-                                        href="/"
-                                        className="transition hover:text-blue-700"
+                                        href="#home"
+                                        className="transition hover:text-accent"
                                     >
                                         Home
                                     </a>
                                 </li>
-                                <li className="cursor-pointer hover:text-blue-600">
+                                <li>
                                     <a
                                         href="#features"
-                                        className="transition hover:text-blue-700"
+                                        className="transition hover:text-accent"
                                     >
                                         Features
                                     </a>
                                 </li>
-                                <li className="cursor-pointer hover:text-blue-600">
+                                <li>
                                     <a
-                                        href="/pricing"
-                                        className="transition hover:text-blue-700"
+                                        href="#pricing"
+                                        className="transition hover:text-accent"
                                     >
-                                        Pricing
+                                        Why Loanly
                                     </a>
                                 </li>
                             </ul>
@@ -53,24 +57,24 @@ export default function Footer() {
 
                         {/* Links: Company */}
                         <div>
-                            <h4 className="mb-6 text-xs font-black tracking-widest text-white uppercase">
-                                Company
+                            <h4 className="mb-6 text-xs font-black tracking-widest text-gray-900 uppercase">
+                                Product
                             </h4>
-                            <ul className="space-y-4 text-sm font-medium text-white">
-                                <li className="cursor-pointer hover:text-blue-600">
+                            <ul className="space-y-4 text-sm font-medium text-gray-600">
+                                <li>
                                     <a
-                                        href="/about-us"
-                                        className="transition hover:text-blue-700"
+                                        href="#about"
+                                        className="transition hover:text-accent"
                                     >
-                                        About Us
+                                        How it works
                                     </a>
                                 </li>
-                                <li className="cursor-pointer hover:text-blue-600">
+                                <li>
                                     <a
-                                        href="/contact"
-                                        className="transition hover:text-blue-700"
+                                        href="#contact"
+                                        className="transition hover:text-accent"
                                     >
-                                        Contact
+                                        FAQ
                                     </a>
                                 </li>
                             </ul>
@@ -93,15 +97,15 @@ export default function Footer() {
                     </div>
 
                     {/* Bottom Bar */}
-                    <div className="mt-20 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-10 md:flex-row">
-                        <p className="text-xs font-medium text-white">
+                    <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-secondary pt-8 md:flex-row">
+                        <p className="text-xs font-medium text-gray-500">
                             © 2026 Loanly. All rights reserved.
                         </p>
                         <div className="flex items-center gap-6">
                             {/* Simple Social Icons Placeholders */}
-                            <div className="h-5 w-5 cursor-pointer rounded-full bg-slate-100 transition-colors hover:bg-blue-50" />
-                            <div className="h-5 w-5 cursor-pointer rounded-full bg-slate-100 transition-colors hover:bg-blue-50" />
-                            <div className="h-5 w-5 cursor-pointer rounded-full bg-slate-100 transition-colors hover:bg-blue-50" />
+                            <div className="h-5 w-5 cursor-pointer rounded-full bg-primary transition-colors hover:bg-accent" />
+                            <div className="h-5 w-5 cursor-pointer rounded-full bg-primary transition-colors hover:bg-accent" />
+                            <div className="h-5 w-5 cursor-pointer rounded-full bg-primary transition-colors hover:bg-accent" />
                         </div>
                     </div>
                 </div>
